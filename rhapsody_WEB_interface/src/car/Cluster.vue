@@ -7,7 +7,7 @@ import { car, actions, speedScaleMax } from '../core/car.js';
 
 const scale = computed(() => speedScaleMax(car.maxSpeed.value));
 const throttlePct = computed(() => Math.min(100, Math.max(0, (car.throttle.value / (car.maxThrottle.value || 10)) * 100)));
-const odo = computed(() => car.distanceKm.value.toFixed(1).padStart(8, '0'));
+const odo = computed(() => Math.floor(car.distanceKm.value).toString().padStart(6, '0'));
 </script>
 
 <template>

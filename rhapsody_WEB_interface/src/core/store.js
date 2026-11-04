@@ -79,7 +79,7 @@ export async function testConnection(apiSettings) {
 
 export function attributeValue(attribute, instanceHint = '') {
   const id = resolveInstanceId(store.schema, attribute, instanceHint);
-  const key = findStateKey(store.state, id);
+  const key = findStateKey(store.state, id) || Object.keys(store.state).find((k) => attribute in store.state[k]);
   return key ? store.state[key]?.[attribute] : undefined;
 }
 

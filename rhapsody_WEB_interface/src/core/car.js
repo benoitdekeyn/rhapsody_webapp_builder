@@ -40,7 +40,7 @@ export const car = buildCar(attributes);
 car.online = computed(() => store.connected);
 car.mode = computed(() => (car.cruise.value ? 'cruise' : car.limiter.value ? 'limiter' : 'manual'));
 car.connected = computed(() => car.vehicleConnected.value && car.phoneConnected.value);
-car.distanceKm = computed(() => car.distance.value / 1000);
+car.distanceKm = car.distance;
 car.step = computed(() =>
   pairingStep({
     phoneBluetooth: car.phoneBluetooth.value,

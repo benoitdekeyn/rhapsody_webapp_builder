@@ -7,7 +7,7 @@
   "attributes": {
     // Dashboard
     "speed":           { "api": "float_speed", "type": "number" },
-    "distance":        { "api": "distance", "type": "number" },          // meters
+    "distance":        { "api": "distance", "type": "number" },
     "maxSpeed":        { "api": "PARAM_SIMU_max_speed", "type": "number", "default": 120 },
     "fuel":            { "api": "reservoir_carburant", "type": "number" },
     "battery":         { "api": "niveau_batterie", "type": "number" },

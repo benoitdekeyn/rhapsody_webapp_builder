@@ -11,15 +11,10 @@ const active = computed(() => car.mode.value !== 'manual');
 
 <template>
   <Panel title="Régulateur / Limiteur">
-    <template #lights>
-      <Light label="RÉGUL." color="#3ecf8e" :on="car.cruise.value" />
-      <Light label="LIMIT." color="#ffb020" :on="car.limiter.value" />
-      <Light label="DÉPASS." color="#ff4d4d" blink :on="car.limiterExceeded.value" />
-    </template>
-
     <div class="stalk">
       <button class="mode cruise" :class="{ on: car.mode.value === 'cruise' }" :disabled="!car.online.value" @click="actions.fire('cruise')"><b>RÉGULATEUR</b><small>CRUISE</small></button>
       <button class="mode limiter" :class="{ on: car.mode.value === 'limiter' }" :disabled="!car.online.value" @click="actions.fire('limiter')"><b>LIMITEUR</b><small>LIMIT</small></button>
+      <div class="over-light"><Light label="DÉPASSEMENT" color="#ff4d4d" blink :on="car.limiterExceeded.value" /></div>
     </div>
 
     <div class="display" :class="[car.mode.value, { over: car.limiterExceeded.value }]">
@@ -41,6 +36,7 @@ const active = computed(() => car.mode.value !== 'manual');
 
 <style scoped>
 .stalk { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.over-light { grid-column: 2; display: flex; justify-content: center; }
 .mode { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; border-radius: 12px; border: 1px solid var(--border); background: linear-gradient(#232c3c, #161d2a); color: var(--text); cursor: pointer; }
 .mode b { font-size: 11px; letter-spacing: 1px; }
 .mode small { font-size: 9px; opacity: 0.55; letter-spacing: 2px; }

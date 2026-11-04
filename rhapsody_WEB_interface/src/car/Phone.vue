@@ -52,7 +52,7 @@ const toggleBluetooth = (e) => actions.set('phoneBluetooth', e.target.checked);
         <span>{{ clock }}</span>
         <span class="icons">
           <b v-if="car.phoneBluetooth.value" :class="{ on: car.connected.value }">ᛒ</b>
-          <span class="cell"><i :style="{ width: battery + '%' }" :class="{ low: battery < 20 }"></i></span>
+          <span class="batt"><span class="cell"><i :style="{ width: battery + '%' }" :class="{ low: battery < 20 }"></i></span></span>
           <span class="pct">{{ battery }}%</span>
           <em :style="{ visibility: car.charging.value ? 'visible' : 'hidden' }">⚡</em>
         </span>
@@ -108,15 +108,16 @@ const toggleBluetooth = (e) => actions.set('phoneBluetooth', e.target.checked);
 <style scoped>
 .holder { height: 100%; display: flex; justify-content: center; }
 .phone { position: relative; height: 100%; aspect-ratio: 2 / 5; box-sizing: border-box; border-radius: 38px; background: #05070b; border: 6px solid #2b3345; box-shadow: 0 0 0 2px #0c0f16, 0 14px 30px #000a; overflow: hidden; color: #f2f5fb; display: flex; flex-direction: column; }
-.notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 80px; height: 18px; background: #000; border-radius: 12px; z-index: 3; }
-.status { display: flex; justify-content: space-between; align-items: center; padding: 10px 22px 6px; font: 600 11px system-ui, sans-serif; z-index: 2; }
+.notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 56px; height: 16px; background: #000; border-radius: 12px; z-index: 1; }
+.status { position: relative; display: flex; justify-content: space-between; align-items: center; padding: 10px 16px 6px; font: 600 11px system-ui, sans-serif; z-index: 2; }
 .icons { display: inline-flex; align-items: center; gap: 5px; }
 .icons b { color: #8aa; font-size: 12px; }
 .icons b.on { color: #4aa3ff; }
 .icons em { font-style: normal; color: #ffd24a; width: 10px; text-align: center; flex: none; }
 .icons .pct { white-space: nowrap; flex: none; }
-.icons .cell { margin-left: 2px; }
-.cell { width: 22px; height: 10px; border: 1.2px solid #cfd6e4; border-radius: 3px; padding: 1px; box-sizing: border-box; display: inline-block; flex: none; }
+.icons .batt { display: inline-flex; align-items: center; flex: none; margin-left: 2px; }
+.icons .batt::after { content: ''; width: 2px; height: 5px; background: #cfd6e4; border-radius: 0 1px 1px 0; }
+.cell { width: 22px; height: 11px; border: 1px solid #cfd6e4; border-radius: 3px; padding: 1px; box-sizing: border-box; display: inline-block; flex: none; overflow: hidden; }
 .cell i { display: block; height: 100%; background: #3ecf8e; border-radius: 1px; }
 .cell i.low { background: #ff4d4d; }
 .screen { position: relative; flex: 1; padding: 10px 16px 16px; overflow: hidden auto; background: linear-gradient(#0c1220, #070a12); }

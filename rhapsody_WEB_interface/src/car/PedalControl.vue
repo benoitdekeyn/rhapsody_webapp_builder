@@ -75,7 +75,7 @@ function toggleHold() {
 .pedal.brake .track { width: 96px; }
 .pad { position: absolute; left: 6px; right: 6px; border-radius: 10px; background: linear-gradient(#4a5468, #2a3242); box-shadow: 0 6px 10px #000a, inset 0 1px 0 #fff3; display: flex; flex-direction: column; justify-content: space-evenly; padding: 6px 10px; box-sizing: border-box; }
 .pedal.accel .pad { background: linear-gradient(#5a6476, #2c3444); }
-.pedal.brake .pad { background: linear-gradient(#6b3a3a, #3a1c1c); }
+.pedal.brake .pad { background: linear-gradient(#5a6476, #2c3444); }
 .pad.active { box-shadow: 0 2px 4px #000a, inset 0 1px 0 #fff5; filter: brightness(1.15); }
 .pad i { height: 5px; border-radius: 3px; background: #0006; box-shadow: 0 1px 0 #fff2; }
 .value { font: 700 18px system-ui, sans-serif; font-variant-numeric: tabular-nums; }
