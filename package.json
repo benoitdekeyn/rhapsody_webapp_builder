@@ -1,0 +1,21 @@
+{
+  "name": "rhapsody-webapp-builder",
+  "version": "1.0.0",
+  "description": "Builds the Rhapsody simulator executable (API) together with its web interface",
+  "private": true,
+  "bin": { "rhapsody-webapp-builder": "scripts/cli.js" },
+  "scripts": {
+    "build": "node scripts/cli.js build",
+    "build:web": "node scripts/cli.js build:web",
+    "build:api": "node scripts/cli.js build:api",
+    "schema": "node scripts/cli.js schema",
+    "run": "node scripts/cli.js run",
+    "dev": "node scripts/cli.js dev",
+    "test": "node scripts/cli.js test",
+    "clean": "node scripts/cli.js clean",
+    "install:all": "node scripts/cli.js install",
+    "api": "node scripts/cli.js api",
+    "web": "node scripts/cli.js web"
+  },
+  "engines": { "node": ">=22" }
+}

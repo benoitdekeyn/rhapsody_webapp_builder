@@ -1,0 +1,19 @@
+{
+  // Default settings, baked into the page at build time.
+  // They can be overridden at runtime from the gear icon (saved in the browser's localStorage).
+  "title": "Simulateur véhicule",
+
+  "api": {
+    // Base URL of the simulation engine (rhapsody_API_build executable)
+    "url": "http://127.0.0.1:8080",
+    // Only needed when the engine was built with server.token
+    "token": "",
+    // Delay before reconnecting the WebSocket after a disconnection (ms)
+    "reconnectMs": 1000
+  },
+
+  "ui": {
+    "theme": "dark",        // "dark" | "light"
+    "showDebug": false      // shows the raw state / event log panel
+  }
+}

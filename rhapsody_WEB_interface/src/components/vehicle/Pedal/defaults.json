@@ -1,0 +1,15 @@
+{
+  "label": "Pédale",
+  "min": 0,
+  "max": 10,
+  "springBack": true,
+  "sendIntervalMs": 50,
+  "width": 90,
+  "height": 170,
+  "colors": {
+    "pad": "#2b3342",
+    "fill": "#3ecf8e",
+    "ribs": "#3a4558",
+    "text": "#e8eef7"
+  }
+}

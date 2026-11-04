@@ -1,0 +1,52 @@
+// Dashboard layout and Rhapsody mapping. Edit this file only: components stay untouched.
+// item: { component, attribute | event, args?, instance?, options? }  (options override the component's defaults.json)
+{
+  "sections": [
+    {
+      "id": "cluster",
+      "title": "Tableau de bord",
+      "class": "cluster",
+      "items": [
+        { "component": "Bar", "attribute": "reservoir_carburant", "options": { "label": "Carburant", "min": 0, "max": 50, "unit": "L", "warnBelow": 5 } },
+        { "component": "Gauge", "attribute": "speed", "options": { "label": "Vitesse", "unit": "km/h", "min": 0, "max": 180 } },
+        { "component": "Bar", "attribute": "niveau_batterie", "options": { "label": "Batterie", "min": 0, "max": 100, "unit": "%", "warnBelow": 40, "colors": { "fill": "#4aa3ff" } } }
+      ]
+    },
+    {
+      "id": "voyants",
+      "title": "Voyants",
+      "class": "row",
+      "items": [
+        { "component": "Led", "attribute": "voyant_regulateur", "options": { "label": "Régulateur" } },
+        { "component": "Led", "attribute": "voyant_limiteur", "options": { "label": "Limiteur" } },
+        { "component": "Led", "attribute": "carburant_faible", "options": { "label": "Carburant", "onColor": "#ffb020", "blink": true } },
+        { "component": "Led", "attribute": "batterie_faible", "options": { "label": "Batterie", "onColor": "#ff4d4d", "blink": true } },
+        { "component": "Display", "attribute": "vitesseConsigne", "options": { "label": "Consigne", "unit": "km/h" } },
+        { "component": "Display", "attribute": "distance", "options": { "label": "Distance", "unit": "m" } }
+      ]
+    },
+    {
+      "id": "commandes",
+      "title": "Commandes",
+      "class": "row",
+      "items": [
+        { "component": "PushButton", "event": "ev_demarrer", "options": { "label": "Démarrer" } },
+        { "component": "PushButton", "event": "ev_regulateur", "options": { "label": "Régulateur" } },
+        { "component": "PushButton", "event": "ev_limiteur", "options": { "label": "Limiteur" } },
+        { "component": "PushButton", "event": "ev_vitesseConsigne_plus", "options": { "label": "Consigne +" } },
+        { "component": "PushButton", "event": "ev_vitesseConsigne_moins", "options": { "label": "Consigne −" } },
+        { "component": "PushButton", "event": "ev_remplir_carburant", "options": { "label": "Faire le plein", "color": "#2a9d6b" } },
+        { "component": "PushButton", "event": "ev_depanner_batterie", "options": { "label": "Dépanner batterie", "color": "#c07a1a" } }
+      ]
+    },
+    {
+      "id": "pedales",
+      "title": "Pédales",
+      "class": "pedals",
+      "items": [
+        { "component": "Pedal", "attribute": "brakePedal", "options": { "label": "Frein", "fill": "#ff4d4d", "colors": { "fill": "#ff4d4d" } } },
+        { "component": "Pedal", "attribute": "accelPedal", "options": { "label": "Accélérateur" } }
+      ]
+    }
+  ]
+}

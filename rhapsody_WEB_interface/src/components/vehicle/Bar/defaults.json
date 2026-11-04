@@ -1,0 +1,15 @@
+{
+  "label": "",
+  "min": 0,
+  "max": 100,
+  "unit": "",
+  "decimals": 0,
+  "warnBelow": null,
+  "width": 150,
+  "height": 14,
+  "colors": {
+    "track": "#2a3345",
+    "fill": "#3ecf8e",
+    "warn": "#ff4d4d"
+  }
+}
