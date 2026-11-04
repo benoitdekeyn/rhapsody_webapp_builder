@@ -68,20 +68,9 @@ export const actions = {
   },
   contactOn: () => actions.set('contact', true),
   contactOff: () => actions.set('contact', false),
-  // The starter only works with the contact on: turning the key from OFF goes through ON first.
-  async start() {
-    if (!car.contact.value) {
-      await actions.contactOn();
-      await new Promise((r) => setTimeout(r, 500));
-    }
-    return actions.fire('start');
-  },
+  start: () => actions.fire('start'),
   async submitPin(pin) {
     await actions.set('pinInput', pin);
     return actions.fire('pair');
-  },
-  forgetPhone: async () => {
-    await actions.set('kitPaired', false);
-    return actions.set('phoneBluetooth', false);
   },
 };

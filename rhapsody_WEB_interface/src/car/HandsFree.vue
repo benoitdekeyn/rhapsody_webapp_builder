@@ -4,27 +4,22 @@ import Panel from './Panel.vue';
 import Light from './Light.vue';
 import { car, actions } from '../core/car.js';
 
-const steps = computed(() => {
-  const s = car.step.value;
-  const rank = { phone_off: 1, searching: 2, detected: 3, password: 4, wrong: 4, failed: 3, pairing: 5, connected: 6 }[s] ?? 1;
-  const list = [
-    { text: 'Contact mis (Bluetooth du véhicule actif)', ok: car.vehicleBluetooth.value },
-    { text: 'Bluetooth du téléphone activé', ok: rank >= 2 && car.phoneBluetooth.value },
-    { text: 'Kit détecté par le téléphone', ok: rank >= 3 },
-    { text: 'Code de jumelage saisi', ok: rank >= 5 },
-    { text: 'Téléphone connecté au kit', ok: car.connected.value },
-  ];
-  const firstTodo = list.findIndex((x) => !x.ok);
-  return list.map((x, i) => ({ ...x, current: i === firstTodo }));
-});
-
+// The statechart owns the pairing logic; this only turns its state into a message for the driver.
 const screen = computed(() => {
   if (!car.contact.value) return { title: 'Système éteint', detail: 'Mettez le contact pour activer le kit mains libres.', tone: 'off' };
-  if (!car.vehicleBluetooth.value) return { title: 'Démarrage du Bluetooth…', detail: '', tone: 'wait' };
-  if (car.connected.value) return { title: 'Téléphone connecté', detail: 'Appels et messages disponibles', tone: 'ok' };
-  return { title: 'Bluetooth actif', detail: `En attente d'un téléphone — code de jumelage ${car.pin.value || '----'}`, tone: 'bt' };
-});
-const battery = computed(() => Math.round(car.phoneBatteryShown.value));
+  if (!car.vehicleBluetooth.value) return { title: 'Démarrage du Bluetooth…', detail: 'Veuillez patienter.', tone: 'wait' };
+  switch (car.step.value) {
+    case 'connected': return { title: 'Téléphone connecté', detail: 'Appels et messages disponibles.', tone: 'ok' };
+    case 'phone_off': return { title: 'Bluetooth prêt', detail: 'Activez le Bluetooth du téléphone pour le jumeler.', tone: 'bt' };
+    case 'searching': return { title: 'Recherche…', detail: 'Le téléphone cherche le kit.', tone: 'bt' };
+    case 'detected': return { title: 'Kit détecté', detail: 'Sélectionnez le kit sur le téléphone.', tone: 'bt' };
+    case 'password': return { title: 'Jumelage', detail: `Saisissez le code ${car.pin.value} sur le téléphone.`, tone: 'bt' };
+    case 'wrong': return { title: 'Code incorrect', detail: 'Saisissez à nouveau le code sur le téléphone.', tone: 'bad' };
+    case 'pairing': return { title: 'Connexion…', detail: 'Jumelage en cours.', tone: 'wait' };
+    case 'failed': return { title: 'Jumelage impossible', detail: 'Sélectionnez à nouveau le kit sur le téléphone.', tone: 'bad' };
+    default: return { title: 'Bluetooth actif', detail: '', tone: 'bt' };
+  }
+});const battery = computed(() => Math.round(car.phoneBatteryShown.value));
 </script>
 
 <template>
@@ -56,29 +51,25 @@ const battery = computed(() => Math.round(car.phoneBatteryShown.value));
       <div class="notif" :class="{ on: car.sms.value }">✉ {{ car.sms.value ? 'Nouveau message reçu' : 'Aucun nouveau message' }}</div>
     </div>
 
-    <ol class="steps">
-      <li v-for="(s, i) in steps" :key="i" :class="{ ok: s.ok, cur: s.current }"><i>{{ s.ok ? '✓' : i + 1 }}</i>{{ s.text }}</li>
-    </ol>
-
     <div class="tools">
       <label class="switch" :class="{ disabled: !car.online.value }">
         <input type="checkbox" :checked="car.charging.value" :disabled="!car.online.value" @change="actions.set('charging', $event.target.checked)" />
         <span class="knob"></span> Recharger le téléphone (USB véhicule)
       </label>
-      <button class="forget" :disabled="!car.online.value || (!car.kitPaired.value && !car.phoneBluetooth.value)" @click="actions.forgetPhone()">Oublier le téléphone</button>
     </div>
   </Panel>
 </template>
 
 <style scoped>
-.head { display: flex; align-items: center; gap: 14px; padding: 10px; border-radius: 14px; background: linear-gradient(135deg, #0a1322, #11203a); border: 1px solid #1f3355; margin-bottom: 10px; }
-.logo { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; font-weight: 700; background: #1b2740; color: #4aa3ff; }
+.head { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 14px; background: linear-gradient(135deg, #0a1322, #11203a); border: 1px solid #1f3355; margin-bottom: 8px; }
+.logo { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; font-weight: 700; background: #1b2740; color: #4aa3ff; }
+.head.bad .logo { color: #ff6b6b; }
 .head.off .logo { color: #566; }
 .head.ok .logo { background: #0b3a5e; box-shadow: 0 0 18px #4aa3ff88; color: #fff; }
 .head.bt .logo { animation: pulse 1.6s infinite; }
 @keyframes pulse { 50% { box-shadow: 0 0 20px #4aa3ff99; } }
-.t { font: 700 16px system-ui, sans-serif; }
-.d { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.t { font: 700 14px system-ui, sans-serif; }
+.d { font-size: 12px; opacity: 0.8; margin-top: 2px; }
 .phone { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; display: grid; gap: 6px; }
 .row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
 .batt { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
@@ -88,11 +79,6 @@ const battery = computed(() => Math.round(car.phoneBatteryShown.value));
 .batt.low .cell i { background: #ff4d4d; }
 .notif { font-size: 12px; opacity: 0.45; }
 .notif.on { opacity: 1; color: #ffd24a; font-weight: 600; }
-.steps { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 6px; font-size: 12px; }
-.steps li { display: flex; align-items: center; gap: 10px; opacity: 0.55; }
-.steps li.ok { opacity: 1; color: #3ecf8e; }
-.steps li.cur { opacity: 1; color: #ffd24a; }
-.steps i { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 11px; border: 1px solid currentColor; }
 .tools { display: grid; gap: 10px; border-top: 1px solid var(--border); padding-top: 12px; font-size: 12px; }
 .switch { display: flex; align-items: center; gap: 10px; cursor: pointer; }
 .switch.disabled { opacity: 0.5; }
@@ -101,6 +87,4 @@ const battery = computed(() => Math.round(car.phoneBatteryShown.value));
 .knob::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
 input:checked + .knob { background: #3ecf8e; }
 input:checked + .knob::after { transform: translateX(16px); }
-.forget { justify-self: start; background: #ff4d4d22; color: #ff6b6b; border: 1px solid #ff4d4d66; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
-.forget:disabled { opacity: 0.4; cursor: default; }
 </style>

@@ -18,9 +18,11 @@ Commands:
                then copy the executable folder to the output folder (default)
   build:web    Only build the website and copy it into the API project (custom_web_interface)
   build:api    Only build the executable (uses the website already in custom_web_interface)
+  update:web   Rebuild the website and replace it in the output folder while the executable keeps running
   schema       Analyze the Rhapsody code and write the API schema only
   run          Start the built executable (from the output folder)
   dev          Start the website dev server (hot reload, API address from the config)
+  dev:api      Watch the Rhapsody folder: on change, stop, rebuild and restart the executable
   test         Run the tests of both projects
   install      npm install in the website project
   clean        Remove work copies and the website dist (--all: also executables and the output folder)
@@ -187,6 +189,62 @@ function buildApi(cfg, opts, step, total) {
   console.log(`  API page   : ${base}${cfg.routes.simple}/`);
 }
 
+function stopExe(cfg) {
+  const exe = path.join(cfg.outputDir, cfg.exeName).replace(/'/g, "''");
+  const ps = `Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -eq '${exe}' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }`;
+  spawnSync('powershell', ['-NoProfile', '-Command', ps], { stdio: 'ignore' });
+}
+
+function watchedDir(cfg) {
+  if (cfg.codeDir) return cfg.codeDir;
+  const raw = parseJsonc(fs.readFileSync(cfg.apiConfig, 'utf8'), path.basename(cfg.apiConfig));
+  if (!raw.codeDir) throw new Error('No "codeDir" in the root or API configuration');
+  return path.resolve(path.dirname(cfg.apiConfig), raw.codeDir);
+}
+
+// Rebuilds and restarts the executable whenever the Rhapsody generated code changes.
+async function devApi(cfg, opts) {
+  const dir = watchedDir(cfg);
+  if (!fs.existsSync(dir)) throw new Error(`Rhapsody folder not found: ${dir}`);
+  let child = null;
+  let busy = false;
+  let pending = false;
+  let timer = null;
+
+  const cycle = () => {
+    busy = true;
+    pending = false;
+    console.log(`\n[${new Date().toLocaleTimeString()}] Change detected: stopping, rebuilding, restarting`);
+    stopExe(cfg);
+    try {
+      buildApi(cfg, { ...opts, smoke: false }, 1, 1);
+      child = spawn(path.join(cfg.outputDir, cfg.exeName), [], { cwd: cfg.outputDir, stdio: 'inherit' });
+      console.log(`\n  Running. Watching ${dir} (Ctrl+C to quit)`);
+    } catch (e) {
+      console.error(`\n  ${e.message}\n  Waiting for the next change...`);
+    }
+    busy = false;
+    if (pending) schedule();
+  };
+  const schedule = () => {
+    if (busy) {
+      pending = true;
+      return;
+    }
+    clearTimeout(timer);
+    timer = setTimeout(cycle, 1000);
+  };
+
+  fs.watch(dir, { recursive: true }, schedule);
+  const quit = () => {
+    stopExe(cfg);
+    process.exit(0);
+  };
+  process.on('SIGINT', quit);
+  process.on('SIGTERM', quit);
+  cycle();
+}
+
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (opts.command === 'help') return console.log(HELP);
@@ -202,6 +260,15 @@ async function main() {
     case 'build:web':
       buildWeb(cfg, 1, 1);
       break;
+    case 'update:web': {
+      buildWeb(cfg, 1, 2);
+      out.step(2, 2, 'Updating the running application');
+      const target = path.join(cfg.outputDir, 'custom_web_interface');
+      emptyDir(target);
+      copyDir(cfg.customTarget, target);
+      out.ok(`${cfg.customTarget} -> ${target} (reload the page, no restart needed)`);
+      break;
+    }
     case 'build:api':
       buildApi(cfg, opts, 1, 1);
       break;
@@ -220,6 +287,9 @@ async function main() {
       child.on('exit', (code) => process.exit(code || 0));
       break;
     }
+    case 'dev:api':
+      await devApi(cfg, opts);
+      break;
     case 'dev':
       ensureWebDeps(cfg);
       process.exitCode = npm(['run', 'dev'], cfg.webDir, { RHAPSODY_SITE_OVERRIDE: siteOverride(cfg) });

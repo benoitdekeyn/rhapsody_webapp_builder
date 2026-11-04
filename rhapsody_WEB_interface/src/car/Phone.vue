@@ -52,8 +52,9 @@ const toggleBluetooth = (e) => actions.set('phoneBluetooth', e.target.checked);
         <span>{{ clock }}</span>
         <span class="icons">
           <b v-if="car.phoneBluetooth.value" :class="{ on: car.connected.value }">ᛒ</b>
-          <span class="cell"><i :style="{ width: battery + '%' }" :class="{ low: battery < 20 }"></i></span>{{ battery }}%
-          <em v-if="car.charging.value">⚡</em>
+          <span class="cell"><i :style="{ width: battery + '%' }" :class="{ low: battery < 20 }"></i></span>
+          <span class="pct">{{ battery }}%</span>
+          <em :style="{ visibility: car.charging.value ? 'visible' : 'hidden' }">⚡</em>
         </span>
       </div>
 
@@ -85,8 +86,6 @@ const toggleBluetooth = (e) => actions.set('phoneBluetooth', e.target.checked);
           </div>
         </template>
 
-        <div class="section">Batterie du téléphone</div>
-        <input class="range" type="range" min="0" max="100" step="1" :value="battery" :disabled="!car.online.value" @input="actions.set('phoneBattery', Number($event.target.value))" />
 
         <div v-if="needsPin" class="sheet" :class="{ shake }">
           <div class="q">Demande de jumelage</div>
@@ -114,8 +113,10 @@ const toggleBluetooth = (e) => actions.set('phoneBluetooth', e.target.checked);
 .icons { display: inline-flex; align-items: center; gap: 5px; }
 .icons b { color: #8aa; font-size: 12px; }
 .icons b.on { color: #4aa3ff; }
-.icons em { font-style: normal; color: #ffd24a; }
-.cell { width: 22px; height: 10px; border: 1.2px solid #cfd6e4; border-radius: 3px; padding: 1px; box-sizing: border-box; display: inline-block; }
+.icons em { font-style: normal; color: #ffd24a; width: 10px; text-align: center; flex: none; }
+.icons .pct { white-space: nowrap; flex: none; }
+.icons .cell { margin-left: 2px; }
+.cell { width: 22px; height: 10px; border: 1.2px solid #cfd6e4; border-radius: 3px; padding: 1px; box-sizing: border-box; display: inline-block; flex: none; }
 .cell i { display: block; height: 100%; background: #3ecf8e; border-radius: 1px; }
 .cell i.low { background: #ff4d4d; }
 .screen { position: relative; flex: 1; padding: 10px 16px 16px; overflow: hidden auto; background: linear-gradient(#0c1220, #070a12); }
@@ -145,7 +146,6 @@ input:checked ~ .knob::after { transform: translateX(18px); }
 .sim { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .sim button { padding: 10px 6px; border-radius: 12px; border: 1px solid #263148; background: #141b2b; color: inherit; font-size: 12px; cursor: pointer; }
 .sim button.on { background: #1f6f3d; border-color: #34c759; }
-.range { width: 100%; accent-color: #34c759; }
 .sheet { position: absolute; inset: 0; padding: 16px; background: #0b101ce6; backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 4; }
 .sheet.shake { animation: shake 0.4s; }
 @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }

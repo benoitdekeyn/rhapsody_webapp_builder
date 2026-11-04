@@ -23,8 +23,8 @@ const active = computed(() => car.mode.value !== 'manual');
     </div>
 
     <div class="display" :class="[car.mode.value, { over: car.limiterExceeded.value }]">
-      <div class="lbl">{{ car.mode.value === 'cruise' ? 'Vitesse régulée' : car.mode.value === 'limiter' ? 'Vitesse limite' : 'Consigne' }}</div>
-      <div class="big">{{ active ? car.setpoint.value : '--' }}<small>km/h</small></div>
+      <div class="lbl">{{ car.mode.value === 'cruise' ? 'Vitesse régulée' : car.mode.value === 'limiter' ? 'Vitesse limite' : 'Consigne (inactive)' }}</div>
+      <div class="big">{{ car.setpoint.value }}<small>km/h</small></div>
       <div class="adjust">
         <button :disabled="!car.online.value" @click="actions.fire('setpointMinus')">−</button>
         <button :disabled="!car.online.value" @click="actions.fire('setpointPlus')">+</button>
@@ -33,7 +33,7 @@ const active = computed(() => car.mode.value !== 'manual');
 
     <div class="rail">
       <div class="fill" :style="{ width: pct(car.speed.value) }"></div>
-      <div v-if="active" class="mark" :style="{ left: pct(car.setpoint.value) }"></div>
+      <div class="mark" :style="{ left: pct(car.setpoint.value) }"></div>
     </div>
     <div class="now">{{ Math.round(car.speed.value) }} <small>km/h</small></div>
   </Panel>
@@ -41,7 +41,7 @@ const active = computed(() => car.mode.value !== 'manual');
 
 <style scoped>
 .stalk { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-.mode { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 9px 4px; border-radius: 12px; border: 1px solid var(--border); background: linear-gradient(#232c3c, #161d2a); color: var(--text); cursor: pointer; }
+.mode { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 4px; border-radius: 12px; border: 1px solid var(--border); background: linear-gradient(#232c3c, #161d2a); color: var(--text); cursor: pointer; }
 .mode b { font-size: 11px; letter-spacing: 1px; }
 .mode small { font-size: 9px; opacity: 0.55; letter-spacing: 2px; }
 .mode.on.cruise { border-color: #3ecf8e; box-shadow: 0 0 14px #3ecf8e44; }
@@ -53,7 +53,7 @@ const active = computed(() => car.mode.value !== 'manual');
 .display.over { color: #ff4d4d; animation: pulse 0.8s infinite; }
 @keyframes pulse { 50% { background: #2a0d0d; } }
 .lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; }
-.big { font: 700 38px 'Segoe UI', system-ui, sans-serif; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.big { font: 700 32px 'Segoe UI', system-ui, sans-serif; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .big small { font-size: 11px; margin-left: 4px; opacity: 0.7; }
 .adjust { display: flex; justify-content: center; gap: 12px; margin-top: 4px; }
 .adjust button { width: 58px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: linear-gradient(#2b3548, #1a2231); color: var(--text); font: 700 22px system-ui, sans-serif; cursor: pointer; }

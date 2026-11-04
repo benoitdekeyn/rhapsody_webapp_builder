@@ -9,7 +9,7 @@ const position = computed(() => (cranking.value ? 'start' : car.contact.value ? 
 const angle = computed(() => ({ off: -48, on: 0, start: 48 })[position.value]);
 
 function crankDown(e) {
-  if (!car.online.value || cranking.value) return;
+  if (!car.online.value || !car.contact.value || cranking.value) return;
   cranking.value = true;
   e.currentTarget.setPointerCapture?.(e.pointerId);
   actions.start();
@@ -41,7 +41,7 @@ function keyClick() {
       <g font-family="system-ui" font-size="10" font-weight="700" text-anchor="middle">
         <text x="30" y="36" :fill="position === 'off' ? '#fff' : '#6c7c99'">OFF</text>
         <text x="80" y="14" :fill="position === 'on' ? '#3ecf8e' : '#6c7c99'">ON</text>
-        <text x="130" y="36" :fill="position === 'start' ? '#ffb020' : '#6c7c99'">START</text>
+        <text x="128" y="36" :fill="position === 'start' ? '#ffb020' : '#6c7c99'">DÉMARRER</text>
       </g>
       <circle cx="80" cy="72" r="36" fill="url(#steel)" stroke="#1a2030" stroke-width="3" />
       <circle cx="80" cy="72" r="27" fill="#1d2432" />
@@ -52,25 +52,20 @@ function keyClick() {
         <path d="M83.5 85h5v4h-5zM83.5 93h4v4h-4z" fill="#cfd6e4" stroke="#6b7488" />
       </g>
     </svg>
-    <div class="seg">
-      <button :class="{ active: position === 'off' }" :disabled="!car.online.value" @click="actions.contactOff()">OFF</button>
-      <button :class="{ active: position === 'on' }" :disabled="!car.online.value" @click="actions.contactOn()">ON</button>
-      <button class="start" :class="{ active: position === 'start' }" :disabled="!car.online.value" @pointerdown.prevent="crankDown" @pointerup="crankUp" @pointercancel="crankUp" @lostpointercapture="crankUp">START</button>
+    <div class="side">
+      <Light label="MOTEUR" color="#3ecf8e" :on="car.engine.value" />
+      <button class="start" :class="{ active: cranking }" :disabled="!car.online.value" @pointerdown.prevent="crankDown" @pointerup="crankUp" @pointercancel="crankUp" @lostpointercapture="crankUp">Démarrer</button>
     </div>
-    <Light label="MOTEUR" color="#3ecf8e" :on="car.engine.value" />
   </div>
 </template>
 
 <style scoped>
-.ignition { display: flex; flex-direction: column; align-items: center; gap: 6px; user-select: none; }
+.ignition { display: flex; flex-direction: row; align-items: center; gap: 14px; user-select: none; }
+.side { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .ignition.disabled { opacity: 0.5; }
 .lock { width: 130px; cursor: pointer; filter: drop-shadow(0 6px 10px #0008); }
 .key { transform-origin: 80px 72px; transition: transform 0.12s ease-out; }
 .key.springing { transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1); }
-.seg { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.seg button { background: var(--panel); color: var(--text); border: 0; padding: 6px 11px; font: 700 10px system-ui, sans-serif; letter-spacing: 1px; cursor: pointer; border-right: 1px solid var(--border); touch-action: none; }
-.seg button:last-child { border-right: 0; }
-.seg button.active { background: #3ecf8e; color: #04140d; }
-.seg button.start.active { background: #ffb020; color: #1b1100; }
-.seg button:disabled { cursor: default; opacity: 0.5; }
-</style>
+.start { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 7px 18px; font: 700 11px system-ui, sans-serif; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; touch-action: none; }
+.start.active { background: #ffb020; color: #1b1100; border-color: #ffb020; }
+.start:disabled { cursor: default; opacity: 0.5; }</style>

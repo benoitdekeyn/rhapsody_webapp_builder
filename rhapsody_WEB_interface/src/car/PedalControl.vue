@@ -9,8 +9,8 @@ const props = defineProps({
 });
 
 const MAX = 10;
-const TRACK = 150;
-const PAD = 64;
+const TRACK = 120;
+const PAD = 52;
 const track = ref(null);
 const dragging = ref(false);
 const hold = ref(false);

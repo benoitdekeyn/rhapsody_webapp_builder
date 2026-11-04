@@ -7,7 +7,7 @@
   "attributes": {
     // Dashboard
     "speed":           { "api": "float_speed", "type": "number" },
-    "distance":        { "api": "float_distance", "type": "number" },          // meters
+    "distance":        { "api": "distance", "type": "number" },          // meters
     "maxSpeed":        { "api": "PARAM_SIMU_max_speed", "type": "number", "default": 120 },
     "fuel":            { "api": "reservoir_carburant", "type": "number" },
     "battery":         { "api": "niveau_batterie", "type": "number" },
@@ -19,6 +19,8 @@
     // Ignition and pedals
     "contact":         { "api": "cmd_contact", "type": "boolean" },
     "engine":          { "api": "ignition", "type": "boolean" },
+    "throttle":        { "api": "throttle", "type": "number" },
+    "slope":           { "api": "alpha", "type": "number" },                 // road slope, -20..20
     "accel":           { "api": "accelPedal", "type": "number" },
     "brake":           { "api": "brakePedal", "type": "number" },
 
@@ -40,7 +42,6 @@
     "charging":        { "api": "charge_vehicule_telephone", "type": "boolean" },
     "call":            { "api": "VOYANT_vehicule_appel", "type": "boolean" },
     "sms":             { "api": "VOYANT_vehicule_sms", "type": "boolean" },
-    "kitPaired":       { "api": "kit_jumele", "type": "boolean" },
     "pin":             { "api": "mot_de_passe", "type": "string" },
     "pinInput":        { "api": "champ_mdp", "type": "string" },
     "deviceList":      { "api": "affichage_liste_appareils", "type": "string" },
@@ -55,7 +56,7 @@
     "restSpeed":       { "api": "PARAM_SIMU_vitesse_repos", "type": "number" },
     "maxAccel":        { "api": "PARAM_SIMU_max_accel", "type": "number" },
     "maxBrake":        { "api": "PARAM_SIMU_max_brake", "type": "number" },
-    "maxThrottle":     { "api": "PARAM_SIMU_max_throttle", "type": "number" },
+    "maxThrottle":     { "api": "PARAM_SIMU_max_throttle", "type": "number", "default": 10 },
     "kp":              { "api": "PARAM_SIMU_Kp_regulateur", "type": "number" },
     "ki":              { "api": "PARAM_SIMU_Ki_regulateur", "type": "number" },
     "regulatorFreq":   { "api": "PARAM_SIMU_freq_regulateur", "type": "number" },
