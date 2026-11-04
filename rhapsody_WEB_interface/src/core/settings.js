@@ -51,6 +51,18 @@ export function saveSettings(next) {
   }
 }
 
+// Changes one UI option and remembers it without freezing the other settings to their current values.
+export function setUiOption(key, value) {
+  settings.ui[key] = value;
+  const storage = browserStorage();
+  const stored = readStored(storage) || {};
+  try {
+    storage?.setItem(STORAGE_KEY, JSON.stringify({ ...stored, ui: { ...stored.ui, [key]: value } }));
+  } catch {
+    // storage full / blocked: the option still applies for this session
+  }
+}
+
 export function resetSettings() {
   try {
     browserStorage()?.removeItem(STORAGE_KEY);

@@ -49,3 +49,7 @@ Dans `dashboard.config.jsonc` :
 
 - L'API active le CORS `*` : le site peut tourner depuis `file://` ou un autre port.
 - Les événements n'agissent que si le statechart Rhapsody les autorise ; écrire un attribut le contourne.
+
+## Vue voiture
+
+Par défaut (`ui.view: car` dans site.config.jsonc), le site affiche un cockpit réaliste : combiné (carburant, vitesse, batterie, voyants), clé de contact OFF/ON/START, pédales frein/accélérateur, et trois fenêtres déplaçables : Régulateur/Limiteur, Kit mains libres/Bluetooth et Téléphone (jumelage, code 1234). Le bouton « Vue technique » de l'en-tête bascule vers le tableau de bord générique (dashboard.config.jsonc).

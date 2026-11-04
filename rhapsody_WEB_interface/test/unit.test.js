@@ -58,3 +58,17 @@ describe('résolution', () => {
     expect(dashboard.sections.length).toBeGreaterThan(0);
   });
 });
+
+import { pairingStep, speedScaleMax } from '../src/core/car.js';
+describe('car', () => {
+  const messages = ['a', 'b', 'c', 'd', 'e', 'f'];
+  it('pairingStep follows the statechart messages', () => {
+    expect(pairingStep({ phoneBluetooth: false, connected: false, message: 'a', messages })).toBe('phone_off');
+    expect(pairingStep({ phoneBluetooth: true, connected: false, message: 'c', messages })).toBe('password');
+    expect(pairingStep({ phoneBluetooth: true, connected: true, message: 'e', messages })).toBe('connected');
+  });
+  it('speedScaleMax rounds up', () => {
+    expect(speedScaleMax(120)).toBe(140);
+    expect(speedScaleMax(10)).toBe(60);
+  });
+});
