@@ -963,7 +963,14 @@ void acceptLoop(SOCKET listener) {
     }
 }
 
+// Ctrl+C or closing the terminal must stop every process, including restarted ones.
+BOOL WINAPI onConsoleEvent(DWORD) {
+    TerminateProcess(GetCurrentProcess(), 0);
+    return TRUE;
+}
+
 void startServer() {
+    SetConsoleCtrlHandler(onConsoleEvent, TRUE);
     // Started by a reset: wait for the previous process to release the port.
     if (const char* w = std::getenv("RHAPSODY_API_WAIT_PID")) {
         if (HANDLE h = OpenProcess(SYNCHRONIZE, FALSE, (DWORD)std::atoi(w))) {
