@@ -8,18 +8,10 @@ import { car, actions } from '../core/car.js';
 const screen = computed(() => {
   if (!car.contact.value) return { title: 'Système éteint', detail: 'Mettez le contact pour activer le kit mains libres.', tone: 'off' };
   if (!car.vehicleBluetooth.value) return { title: 'Démarrage du Bluetooth…', detail: 'Veuillez patienter.', tone: 'wait' };
-  switch (car.step.value) {
-    case 'connected': return { title: 'Téléphone connecté', detail: 'Appels et messages disponibles.', tone: 'ok' };
-    case 'phone_off': return { title: 'Bluetooth prêt', detail: 'Activez le Bluetooth du téléphone pour le jumeler.', tone: 'bt' };
-    case 'searching': return { title: 'Recherche…', detail: 'Le téléphone cherche le kit.', tone: 'bt' };
-    case 'detected': return { title: 'Kit détecté', detail: 'Sélectionnez le kit sur le téléphone.', tone: 'bt' };
-    case 'password': return { title: 'Jumelage', detail: `Saisissez le code ${car.pin.value} sur le téléphone.`, tone: 'bt' };
-    case 'wrong': return { title: 'Code incorrect', detail: 'Saisissez à nouveau le code sur le téléphone.', tone: 'bad' };
-    case 'pairing': return { title: 'Connexion…', detail: 'Jumelage en cours.', tone: 'wait' };
-    case 'failed': return { title: 'Jumelage impossible', detail: 'Sélectionnez à nouveau le kit sur le téléphone.', tone: 'bad' };
-    default: return { title: 'Bluetooth actif', detail: '', tone: 'bt' };
-  }
-});const battery = computed(() => Math.round(car.phoneBatteryShown.value));
+  if (car.connected.value) return { title: 'Téléphone connecté', detail: 'Appels et messages disponibles.', tone: 'ok' };
+  return { title: 'Bluetooth prêt', detail: `En attente de jumelage. Code du kit : ${car.pin.value}`, tone: 'bt' };
+});
+const battery = computed(() => Math.round(car.phoneBatteryShown.value));
 </script>
 
 <template>
