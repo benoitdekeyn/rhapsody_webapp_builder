@@ -1,6 +1,6 @@
 # rhapsody_WEB_interface
 
-Site web **indépendant** (Vue 3 + Vite) qui se branche sur l'API du moteur `simulateur.exe` (voir `../rhapsody_API_build`). Le build produit **un seul `dist/index.html`**, utilisable en double-clic (`file://`).
+Site web **indépendant** (Vue 3 + Vite) : cockpit réaliste de la voiture, branché sur l'API du moteur `simulateur.exe` (voir `../rhapsody_API_build`). Le build produit **un seul `dist/index.html`**, utilisable en double-clic (`file://`).
 
 ## Commandes
 
@@ -13,43 +13,34 @@ npm test          # tests unitaires (vitest)
 
 Lancer le moteur d'abord (`dist\simulateur.exe` ou `node src/cli.js run` dans `rhapsody_API_build`).
 
+## Interface
+
+- **Combiné** : roue de carburant, compteur de vitesse, pile de batterie. Chaque voyant est placé près de l'instrument concerné (carburant, batterie, régul./limit./dépass., moteur, Bluetooth/téléphone/appel/SMS). Pas d'alerte : seuls les voyants du statechart s'allument.
+- **Clé de contact** : OFF / ON / START. START est à ressort : `ev_demarrer` est envoyé une seule fois à l'enfoncement, la clé revient sur ON au relâchement.
+- **Pédales** frein / accélérateur (option « Maintenir »).
+- **Régulateur / Limiteur** : `ev_regulateur`, `ev_limiteur`, `+` / `−` (un événement par clic, pas de répétition).
+- **Kit mains libres / Bluetooth** et **Téléphone** (pleine hauteur, ratio 2:5) : jumelage complet (code du kit : voir Paramètres).
+- **Paramètres** (en-tête) : valeurs initiales du modèle (masse, frottement, Kp/Ki, consigne initiale du limiteur, mot de passe, seuils…). « Reset Simulation » les remet à leurs valeurs d'origine.
+
 ## Configuration
 
 | Fichier | Rôle |
 |---|---|
-| `site.config.jsonc` | Valeurs par défaut (URL de l'API, token, reconnexion, thème, debug, titre). Embarqué au build. La variable d'environnement `RHAPSODY_SITE_OVERRIDE` (JSON, posée par le build racine depuis `rhapsody-webapp.config.jsonc`) est fusionnée par-dessus. |
-| `src/dashboard/dashboard.config.jsonc` | Disposition + liaison composants ↔ attributs / événements Rhapsody. |
-| Icône ⚙ du site | Surcharge à l'exécution (stockée dans localStorage, prioritaire) : URL, token, thème, debug, test de connexion, réinitialisation. |
+| `api-map.jsonc` | **Liaison nom du site ↔ attribut / événement de l'API Rhapsody**, et contenu du menu Paramètres. Si un élément est renommé dans Rhapsody, modifier uniquement ce fichier (un avertissement s'affiche en en-tête si une entrée n'existe plus dans l'API). |
+| `site.config.jsonc` | Valeurs par défaut (URL de l'API, token, reconnexion, thème, debug, titre). Embarqué au build. `RHAPSODY_SITE_OVERRIDE` (JSON, posé par le build racine depuis `rhapsody-webapp.config.jsonc`) est fusionné par-dessus. |
+| Icône ⚙ du site | Surcharge à l'exécution (localStorage) : URL, token, thème, debug, test de connexion. |
 
 ## Structure
 
 ```
-src/core/        api-client.js (REST+WebSocket), store.js (état réactif), resolve.js, binding.js, settings.js, jsonc.js
-src/components/vehicle/<Nom>/<Nom>.vue + defaults.json    (Gauge, Pedal, Led, PushButton, Toggle, Display, Bar)
-src/dashboard/   Dashboard.vue + dashboard.config.jsonc
+api-map.jsonc    liaison site <-> API + menu Paramètres
+src/core/        api-client.js (REST+WebSocket), store.js (état réactif), car.js (valeurs/actions via api-map), resolve.js, settings.js, jsonc.js
+src/car/         CarView, Cluster, Dial, BatteryGauge, Light, IgnitionKey, PedalControl, SpeedControl, HandsFree, Phone, ParamsPanel, Panel
 src/settings/    SettingsPanel.vue
 ```
-
-## Ajouter un composant
-
-Créer `src/components/vehicle/MonComposant/MonComposant.vue` et `defaults.json` : il est enregistré automatiquement (`import.meta.glob`). Utiliser `bindingProps`, `useOptions`, `useAttribute` / `useEvent` de `core/binding.js`. Les `options` d'une instance du dashboard sont fusionnées sur `defaults.json` : modifier un défaut change tous les composants du même type.
-
-## Lier un attribut / événement
-
-Dans `dashboard.config.jsonc` :
-
-```
-{ "component": "Gauge", "attribute": "speed", "options": { "max": 200 } }
-{ "component": "PushButton", "event": "ev_demarrer", "options": { "label": "Démarrer" } }
-```
-
-`instance` est optionnel (déduit du schéma `/api/schema`). Un attribut ou événement absent du schéma est signalé (cadre orange + avertissement en en-tête).
 
 ## Notes
 
 - L'API active le CORS `*` : le site peut tourner depuis `file://` ou un autre port.
 - Les événements n'agissent que si le statechart Rhapsody les autorise ; écrire un attribut le contourne.
-
-## Vue voiture
-
-Par défaut (`ui.view: car` dans site.config.jsonc), le site affiche un cockpit réaliste : combiné (carburant, vitesse, batterie, voyants), clé de contact OFF/ON/START, pédales frein/accélérateur, et trois fenêtres déplaçables : Régulateur/Limiteur, Kit mains libres/Bluetooth et Téléphone (jumelage, code 1234). Le bouton « Vue technique » de l'en-tête bascule vers le tableau de bord générique (dashboard.config.jsonc).
+- Le jumelage Bluetooth n'est possible que contact mis et moteur éteint.

@@ -2,9 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { parseJsonc } from '../src/core/jsonc.js';
 import { applyMessage } from '../src/core/api-client.js';
 import { mergeSettings, resolveSettings } from '../src/core/settings.js';
-import { resolveInstanceId, findStateKey, validateDashboard } from '../src/core/resolve.js';
-import { mergeOptions } from '../src/core/binding.js';
-import dashboard from '../src/dashboard/dashboard.config.jsonc';
+import { resolveInstanceId, findStateKey, validateMap } from '../src/core/resolve.js';
+import apiMap from '../api-map.jsonc';
 
 const schema = {
   classes: [{ name: '_SysVehicule', attributes: [{ name: 'speed', kind: 'int', writable: true }, { name: 'accelPedal', kind: 'float', writable: true }] }],
@@ -46,20 +45,16 @@ describe('résolution', () => {
     expect(resolveInstanceId(schema, 'speed')).toBe('_SysVehicule');
     expect(findStateKey({ '_SysVehicule#2': {} }, '_SysVehicule')).toBe('_SysVehicule#2');
   });
-  it('mergeOptions fusionne en profondeur', () => {
-    expect(mergeOptions({ a: 1, c: { x: 1, y: 2 } }, { c: { y: 3 } })).toEqual({ a: 1, c: { x: 1, y: 3 } });
+  it('valide api-map.jsonc contre le schéma', () => {
+    const p = validateMap({ attributes: { a: { api: 'nope' }, b: { api: 'speed' } }, events: { c: 'ev_demarrer', d: 'ev_nope' } }, schema);
+    expect(p.map((x) => x.name)).toEqual(['nope', 'ev_nope']);
   });
-  it('valide le dashboard', () => {
-    const p = validateDashboard({ sections: [{ items: [{ component: 'Led', attribute: 'nope' }, { component: 'PushButton', event: 'ev_demarrer' }] }] }, schema);
-    expect(p).toHaveLength(1);
-    expect(p[0].name).toBe('nope');
-  });
-  it('la config du dashboard est valide JSONC', () => {
-    expect(dashboard.sections.length).toBeGreaterThan(0);
+  it('api-map.jsonc est cohérent', () => {
+    for (const g of apiMap.parameters) for (const it of g.items) expect(apiMap.attributes[it.key], it.key).toBeTruthy();
+    for (const def of Object.values(apiMap.attributes)) expect(['number', 'boolean', 'string', 'list']).toContain(def.type);
   });
 });
-
-import { pairingStep, speedScaleMax } from '../src/core/car.js';
+import { pairingStep, speedScaleMax, buildCar } from '../src/core/car.js';
 describe('car', () => {
   const messages = ['a', 'b', 'c', 'd', 'e', 'f'];
   it('pairingStep follows the statechart messages', () => {
@@ -70,5 +65,14 @@ describe('car', () => {
   it('speedScaleMax rounds up', () => {
     expect(speedScaleMax(120)).toBe(140);
     expect(speedScaleMax(10)).toBe(60);
+  });
+  it('buildCar lit les valeurs via le nom d\'API du JSON', () => {
+    const values = { float_speed: 42, cmd_contact: true, messages_appairage: ['x'] };
+    const c = buildCar(apiMap.attributes, (name) => values[name]);
+    expect(c.speed.value).toBe(42);
+    expect(c.contact.value).toBe(true);
+    expect(c.engine.value).toBe(false);
+    expect(c.messages.value).toEqual(['x']);
+    expect(c.maxSpeed.value).toBe(120);
   });
 });

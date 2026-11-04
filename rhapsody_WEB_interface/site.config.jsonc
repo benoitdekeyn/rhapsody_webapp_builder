@@ -14,7 +14,6 @@
 
   "ui": {
     "theme": "dark",        // "dark" | "light"
-    "view": "car",          // "car" (realistic cockpit) | "technical" (dashboard.config.jsonc components)
     "showDebug": false      // shows the raw state / event log panel
   }
 }

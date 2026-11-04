@@ -29,16 +29,15 @@ export function findEvent(schema, name) {
   return schema?.events?.find((e) => e.name === name) || null;
 }
 
-// Lists the items of a dashboard configuration that do not exist (anymore) in the engine schema.
-export function validateDashboard(dashboard, schema) {
+// Lists the attributes / events of the API map that do not exist (anymore) in the engine schema.
+export function validateMap(map, schema) {
   const problems = [];
   if (!schema) return problems;
-  for (const section of dashboard.sections || []) {
-    for (const item of section.items || []) {
-      const label = item.id || `${item.component}:${item.attribute || item.event}`;
-      if (item.attribute && !findAttribute(schema, item.attribute, item.instance)) problems.push({ id: label, kind: 'attribute', name: item.attribute });
-      if (item.event && !findEvent(schema, item.event)) problems.push({ id: label, kind: 'event', name: item.event });
-    }
+  for (const [key, def] of Object.entries(map.attributes || {})) {
+    if (!findAttribute(schema, def.api)) problems.push({ key, kind: 'attribute', name: def.api });
+  }
+  for (const [key, name] of Object.entries(map.events || {})) {
+    if (!findEvent(schema, name)) problems.push({ key, kind: 'event', name });
   }
   return problems;
 }

@@ -1,9 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
-import ModalShell from './ModalShell.vue';
 import { car, actions } from '../core/car.js';
-
-defineEmits(['close']);
 
 const pin = ref('');
 const shake = ref(false);
@@ -44,11 +41,11 @@ async function pair() {
   pin.value = '';
   await actions.submitPin(value);
 }
-const toggleBluetooth = (e) => actions.set('bluetooth_telephone_actif', e.target.checked);
+const toggleBluetooth = (e) => actions.set('phoneBluetooth', e.target.checked);
 </script>
 
 <template>
-  <ModalShell title="Téléphone" :x="1010" :y="60" :width="330" @close="$emit('close')">
+  <div class="holder">
     <div class="phone">
       <div class="notch"></div>
       <div class="status">
@@ -71,7 +68,7 @@ const toggleBluetooth = (e) => actions.set('bluetooth_telephone_actif', e.target
         <template v-if="car.phoneBluetooth.value">
           <div class="section">Appareils à proximité</div>
           <div v-if="!car.deviceList.value" class="searching"><i class="spin"></i>Recherche en cours…<small>{{ car.pairingMessage.value }}</small></div>
-          <button v-else class="device" :class="{ selectable, connected: car.step.value === 'connected' }" :disabled="!selectable" @click="actions.fire('ev_ok')">
+          <button v-else class="device" :class="{ selectable, connected: car.step.value === 'connected' }" :disabled="!selectable" @click="actions.fire('selectDevice')">
             <span class="ico">🚗</span>
             <span class="meta"><b>{{ car.deviceList.value }}</b><small>{{ deviceStatus }}</small></span>
             <span v-if="car.step.value === 'connected'" class="check">✓</span>
@@ -83,13 +80,13 @@ const toggleBluetooth = (e) => actions.set('bluetooth_telephone_actif', e.target
         <template v-if="car.connected.value">
           <div class="section">Simulation</div>
           <div class="sim">
-            <button :class="{ on: car.call.value }" @click="actions.set('VOYANT_vehicule_appel', !car.call.value)">📞 {{ car.call.value ? 'Raccrocher' : 'Appel entrant' }}</button>
-            <button :class="{ on: car.sms.value }" @click="actions.set('VOYANT_vehicule_sms', !car.sms.value)">✉ {{ car.sms.value ? 'Marquer lu' : 'SMS reçu' }}</button>
+            <button :class="{ on: car.call.value }" @click="actions.set('call', !car.call.value)">📞 {{ car.call.value ? 'Raccrocher' : 'Appel entrant' }}</button>
+            <button :class="{ on: car.sms.value }" @click="actions.set('sms', !car.sms.value)">✉ {{ car.sms.value ? 'Marquer lu' : 'SMS reçu' }}</button>
           </div>
         </template>
 
         <div class="section">Batterie du téléphone</div>
-        <input class="range" type="range" min="0" max="100" step="1" :value="battery" :disabled="!car.online.value" @input="actions.set('niveau_batterie_telephone', Number($event.target.value))" />
+        <input class="range" type="range" min="0" max="100" step="1" :value="battery" :disabled="!car.online.value" @input="actions.set('phoneBattery', Number($event.target.value))" />
 
         <div v-if="needsPin" class="sheet" :class="{ shake }">
           <div class="q">Demande de jumelage</div>
@@ -106,11 +103,12 @@ const toggleBluetooth = (e) => actions.set('bluetooth_telephone_actif', e.target
         </div>
       </div>
     </div>
-  </ModalShell>
+  </div>
 </template>
 
 <style scoped>
-.phone { position: relative; margin: 0 auto; width: 270px; height: 500px; border-radius: 38px; background: #05070b; border: 6px solid #2b3345; box-shadow: 0 0 0 2px #0c0f16, 0 14px 30px #000a; overflow: hidden; color: #f2f5fb; display: flex; flex-direction: column; }
+.holder { height: 100%; display: flex; justify-content: center; }
+.phone { position: relative; height: 100%; aspect-ratio: 2 / 5; box-sizing: border-box; border-radius: 38px; background: #05070b; border: 6px solid #2b3345; box-shadow: 0 0 0 2px #0c0f16, 0 14px 30px #000a; overflow: hidden; color: #f2f5fb; display: flex; flex-direction: column; }
 .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 80px; height: 18px; background: #000; border-radius: 12px; z-index: 3; }
 .status { display: flex; justify-content: space-between; align-items: center; padding: 10px 22px 6px; font: 600 11px system-ui, sans-serif; z-index: 2; }
 .icons { display: inline-flex; align-items: center; gap: 5px; }

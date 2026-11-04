@@ -1,9 +1,8 @@
 <script setup>
 import { computed } from 'vue';
-import ModalShell from './ModalShell.vue';
+import Panel from './Panel.vue';
+import Light from './Light.vue';
 import { car, actions } from '../core/car.js';
-
-defineEmits(['close']);
 
 const steps = computed(() => {
   const s = car.step.value;
@@ -26,13 +25,16 @@ const screen = computed(() => {
   return { title: 'Bluetooth actif', detail: `En attente d'un téléphone — code de jumelage ${car.pin.value || '----'}`, tone: 'bt' };
 });
 const battery = computed(() => Math.round(car.phoneBatteryShown.value));
-function setPin(e) {
-  actions.set('mot_de_passe', e.target.value);
-}
 </script>
 
 <template>
-  <ModalShell title="Kit mains libres · Bluetooth" :x="540" :y="90" :width="440" @close="$emit('close')">
+  <Panel title="Kit mains libres · Bluetooth">
+    <template #lights>
+      <Light label="BT" color="#4aa3ff" :on="car.vehicleBluetooth.value" />
+      <Light label="TÉL." color="#4aa3ff" :on="car.connected.value" />
+      <Light label="APPEL" color="#3ecf8e" blink :on="car.call.value" />
+      <Light label="SMS" color="#ffd24a" blink :on="car.sms.value" />
+    </template>
     <div class="head" :class="screen.tone">
       <div class="logo">ᛒ</div>
       <div>
@@ -60,28 +62,24 @@ function setPin(e) {
 
     <div class="tools">
       <label class="switch" :class="{ disabled: !car.online.value }">
-        <input type="checkbox" :checked="car.charging.value" :disabled="!car.online.value" @change="actions.set('charge_vehicule_telephone', $event.target.checked)" />
+        <input type="checkbox" :checked="car.charging.value" :disabled="!car.online.value" @change="actions.set('charging', $event.target.checked)" />
         <span class="knob"></span> Recharger le téléphone (USB véhicule)
-      </label>
-      <label class="pin">
-        Code de jumelage du kit
-        <input type="text" maxlength="8" :value="car.pin.value" :disabled="!car.online.value" @change="setPin" />
       </label>
       <button class="forget" :disabled="!car.online.value || (!car.kitPaired.value && !car.phoneBluetooth.value)" @click="actions.forgetPhone()">Oublier le téléphone</button>
     </div>
-  </ModalShell>
+  </Panel>
 </template>
 
 <style scoped>
-.head { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 14px; background: linear-gradient(135deg, #0a1322, #11203a); border: 1px solid #1f3355; margin-bottom: 14px; }
-.logo { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; font-weight: 700; background: #1b2740; color: #4aa3ff; }
+.head { display: flex; align-items: center; gap: 14px; padding: 10px; border-radius: 14px; background: linear-gradient(135deg, #0a1322, #11203a); border: 1px solid #1f3355; margin-bottom: 10px; }
+.logo { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; font-weight: 700; background: #1b2740; color: #4aa3ff; }
 .head.off .logo { color: #566; }
 .head.ok .logo { background: #0b3a5e; box-shadow: 0 0 18px #4aa3ff88; color: #fff; }
 .head.bt .logo { animation: pulse 1.6s infinite; }
 @keyframes pulse { 50% { box-shadow: 0 0 20px #4aa3ff99; } }
 .t { font: 700 16px system-ui, sans-serif; }
 .d { font-size: 12px; opacity: 0.7; margin-top: 2px; }
-.phone { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; display: grid; gap: 6px; }
+.phone { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; display: grid; gap: 6px; }
 .row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
 .batt { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
 .batt em { font-style: normal; font-size: 11px; color: #ffd24a; }
@@ -103,8 +101,6 @@ function setPin(e) {
 .knob::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
 input:checked + .knob { background: #3ecf8e; }
 input:checked + .knob::after { transform: translateX(16px); }
-.pin { display: flex; align-items: center; gap: 10px; }
-.pin input { width: 80px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; letter-spacing: 3px; text-align: center; }
 .forget { justify-self: start; background: #ff4d4d22; color: #ff6b6b; border: 1px solid #ff4d4d66; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
 .forget:disabled { opacity: 0.4; cursor: default; }
 </style>

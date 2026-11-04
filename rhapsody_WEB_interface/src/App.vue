@@ -1,20 +1,19 @@
 <script setup>
 import { ref, computed, watch, watchEffect, onMounted, onBeforeUnmount } from 'vue';
-import Dashboard from './dashboard/Dashboard.vue';
 import CarView from './car/CarView.vue';
+import ParamsPanel from './car/ParamsPanel.vue';
 import SettingsPanel from './settings/SettingsPanel.vue';
-import { settings, setUiOption } from './core/settings.js';
+import { settings } from './core/settings.js';
 import { store, connect, disconnect, resetSimulation } from './core/store.js';
-import { validateDashboard } from './core/resolve.js';
-import dashboard from './dashboard/dashboard.config.jsonc';
+import { validateMap } from './core/resolve.js';
+import apiMap from '../api-map.jsonc';
 import defaults from '../site.config.jsonc';
 
 const showSettings = ref(false);
 const resetting = ref(false);
-const warnings = computed(() => validateDashboard(dashboard, store.schema));
+const showParams = ref(false);
+const warnings = computed(() => validateMap(apiMap, store.schema));
 const title = defaults.title || 'Rhapsody';
-const technical = computed(() => settings.ui.view === 'technical');
-const switchView = () => setUiOption('view', technical.value ? 'car' : 'technical');
 
 async function reset() {
   if (!window.confirm('Relancer la simulation depuis le début ?')) return;
@@ -45,28 +44,31 @@ onBeforeUnmount(disconnect);
       <i></i>{{ store.connected ? 'Connecté' : store.connecting ? 'Connexion…' : 'Déconnecté' }}
       <small>{{ settings.api.url }}</small>
     </span>
-    <span class="warn" v-if="technical && warnings.length" :title="warnings.map((w) => `${w.kind} ${w.name}`).join('\n')">⚠ {{ warnings.length }} élément(s) absent(s) du schéma</span>
+    <span class="warn" v-if="warnings.length" :title="warnings.map((w) => `${w.kind} ${w.name} (${w.key})`).join('\n')">⚠ {{ warnings.length }} élément(s) de api-map.jsonc absent(s) de l'API</span>
     <span class="spacer"></span>
-    <button class="view" title="Changer de vue" @click="switchView">{{ technical ? 'Vue voiture' : 'Vue technique' }}</button>
+    <button class="view" @click="showParams = true">Paramètres</button>
     <button class="reset" :disabled="!store.connected || resetting" title="Relance la simulation depuis le début" @click="reset">
       {{ resetting ? 'Redémarrage…' : 'Reset Simulation' }}
     </button>
     <button class="gear" title="Réglages" @click="showSettings = true">⚙</button>
   </header>
   <div v-if="store.error" class="error">{{ store.error }}</div>
-  <main><Dashboard v-if="technical" /><CarView v-else /></main>
+  <main><CarView /></main>
   <section v-if="settings.ui.showDebug" class="debug">
     <h4>Événements reçus</h4>
     <div v-for="(e, i) in store.eventLog.slice(0, 15)" :key="i">{{ e.name }} {{ e.instance }} {{ JSON.stringify(e.args) }}</div>
     <h4>État</h4>
     <pre>{{ JSON.stringify(store.state, null, 1) }}</pre>
   </section>
+  <ParamsPanel v-if="showParams" @close="showParams = false" />
   <SettingsPanel v-if="showSettings" @close="showSettings = false" @apply="apply" />
 </template>
 
 <style>
 :root { --bg: #0e131c; --panel: #151c28; --border: #243047; --text: #e8eef7; }
 :root[data-theme='light'] { --bg: #eef2f7; --panel: #fff; --border: #cfd8e6; --text: #1b2433; }
+html, body, #app { height: 100%; }
+#app { display: flex; flex-direction: column; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, Segoe UI, sans-serif; }
 header { display: flex; align-items: center; gap: 16px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--panel); }
 h1 { margin: 0; font-size: 16px; }
@@ -82,7 +84,7 @@ h1 { margin: 0; font-size: 16px; }
 .reset:disabled { opacity: 0.5; cursor: default; }
 .view { background: none; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
 .error { background: #ff4d4d22; color: #ff6b6b; padding: 6px 20px; font-size: 12px; }
-main { padding: 22px; }
+main { flex: 1; min-height: 0; padding: 14px; box-sizing: border-box; }
 .debug { margin: 0 22px 22px; font: 11px Consolas, monospace; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px; max-height: 260px; overflow: auto; }
 .debug h4 { margin: 6px 0; }
 </style>

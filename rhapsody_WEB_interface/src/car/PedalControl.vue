@@ -4,21 +4,20 @@ import { ref, computed } from 'vue';
 import { car, actions } from '../core/car.js';
 
 const props = defineProps({
-  attribute: { type: String, required: true },
   label: { type: String, required: true },
   kind: { type: String, default: 'accel' }, // 'accel' | 'brake'
 });
 
 const MAX = 10;
-const TRACK = 190;
-const PAD = 80;
+const TRACK = 150;
+const PAD = 64;
 const track = ref(null);
 const dragging = ref(false);
 const hold = ref(false);
 const dragValue = ref(0);
 let lastSent = 0;
 
-const remote = computed(() => (props.attribute === 'brakePedal' ? car.brake.value : car.accel.value));
+const remote = computed(() => (props.kind === 'brake' ? car.brake.value : car.accel.value));
 const shown = computed(() => (dragging.value ? dragValue.value : remote.value));
 const top = computed(() => (Math.min(MAX, Math.max(0, shown.value)) / MAX) * (TRACK - PAD));
 
@@ -31,7 +30,7 @@ function send(v, force = false) {
   const now = performance.now();
   if (!force && now - lastSent < 50) return;
   lastSent = now;
-  actions.set(props.attribute, v);
+  actions.set(props.kind === 'brake' ? 'brake' : 'accel', v);
 }
 function down(e) {
   if (!car.online.value) return;
@@ -72,8 +71,8 @@ function toggleHold() {
 <style scoped>
 .pedal { display: flex; flex-direction: column; align-items: center; gap: 4px; user-select: none; }
 .pedal.disabled { opacity: 0.5; pointer-events: none; }
-.track { position: relative; width: 84px; border-radius: 14px; background: linear-gradient(#0b0f16, #171e2b); border: 1px solid var(--border); box-shadow: inset 0 4px 14px #000a; touch-action: none; cursor: ns-resize; }
-.pedal.brake .track { width: 120px; }
+.track { position: relative; width: 70px; border-radius: 14px; background: linear-gradient(#0b0f16, #171e2b); border: 1px solid var(--border); box-shadow: inset 0 4px 14px #000a; touch-action: none; cursor: ns-resize; }
+.pedal.brake .track { width: 96px; }
 .pad { position: absolute; left: 6px; right: 6px; border-radius: 10px; background: linear-gradient(#4a5468, #2a3242); box-shadow: 0 6px 10px #000a, inset 0 1px 0 #fff3; display: flex; flex-direction: column; justify-content: space-evenly; padding: 6px 10px; box-sizing: border-box; }
 .pedal.accel .pad { background: linear-gradient(#5a6476, #2c3444); }
 .pedal.brake .pad { background: linear-gradient(#6b3a3a, #3a1c1c); }

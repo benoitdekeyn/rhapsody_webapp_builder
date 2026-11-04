@@ -11,7 +11,6 @@ const form = reactive({
   reconnectMs: settings.api.reconnectMs,
   theme: settings.ui.theme,
   showDebug: settings.ui.showDebug,
-  view: settings.ui.view,
 });
 const result = ref('');
 const ok = ref(true);
@@ -29,7 +28,7 @@ async function test() {
   }
 }
 function save() {
-  saveSettings({ api: toApi(), ui: { theme: form.theme, showDebug: form.showDebug, view: form.view } });
+  saveSettings({ api: toApi(), ui: { theme: form.theme, showDebug: form.showDebug } });
   emit('apply');
   emit('close');
 }
@@ -49,9 +48,6 @@ function reset() {
       <label>Reconnexion (ms)<input v-model="form.reconnectMs" type="number" min="100" /></label>
       <label>Thème
         <select v-model="form.theme"><option value="dark">Sombre</option><option value="light">Clair</option></select>
-      </label>
-      <label>Vue
-        <select v-model="form.view"><option value="car">Voiture (réaliste)</option><option value="technical">Technique (composants)</option></select>
       </label>
       <label class="chk"><input v-model="form.showDebug" type="checkbox" /> Panneau debug</label>
       <div v-if="result" class="result" :class="{ bad: !ok }">{{ result }}</div>

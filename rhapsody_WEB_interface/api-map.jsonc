@@ -1,0 +1,119 @@
+{
+  // Link between the names used by the web interface (left) and the identifiers of the Rhapsody model exposed by the API (right).
+  // If you rename an attribute or an event in Rhapsody, only change the "api" value / the event string here.
+  //   type    : number | boolean | string | list   (how the value is read)
+  //   default : value shown while the API does not provide it (optional)
+
+  "attributes": {
+    // Dashboard
+    "speed":           { "api": "float_speed", "type": "number" },
+    "distance":        { "api": "float_distance", "type": "number" },          // meters
+    "maxSpeed":        { "api": "PARAM_SIMU_max_speed", "type": "number", "default": 120 },
+    "fuel":            { "api": "reservoir_carburant", "type": "number" },
+    "battery":         { "api": "niveau_batterie", "type": "number" },
+    "fuelLow":         { "api": "carburant_faible", "type": "boolean" },
+    "batteryLow":      { "api": "batterie_faible", "type": "boolean" },
+    "fuelThreshold":   { "api": "SEUIL_carburant", "type": "number", "default": 5 },
+    "batteryThreshold":{ "api": "SEUIL_batterie", "type": "number", "default": 40 },
+
+    // Ignition and pedals
+    "contact":         { "api": "cmd_contact", "type": "boolean" },
+    "engine":          { "api": "ignition", "type": "boolean" },
+    "accel":           { "api": "accelPedal", "type": "number" },
+    "brake":           { "api": "brakePedal", "type": "number" },
+
+    // Cruise control / speed limiter
+    "cruise":          { "api": "voyant_regulateur", "type": "boolean" },
+    "limiter":         { "api": "voyant_limiteur", "type": "boolean" },
+    "limiterWaiting":  { "api": "limiteur_attente", "type": "boolean" },
+    "limiterExceeded": { "api": "limiteur_depasse", "type": "boolean" },
+    "setpoint":        { "api": "vitesseConsigne", "type": "number" },
+    "initialLimit":    { "api": "valeur_initiale_limiteur", "type": "number", "default": 50 },
+
+    // Hands-free kit and phone
+    "vehicleBluetooth":{ "api": "VOYANT_bluetooth_vehicule", "type": "boolean" },
+    "vehicleConnected":{ "api": "VOYANT_vehicule_connecte", "type": "boolean" },
+    "phoneConnected":  { "api": "VOYANT_telephone_connecte", "type": "boolean" },
+    "phoneBluetooth":  { "api": "bluetooth_telephone_actif", "type": "boolean" },
+    "phoneBattery":    { "api": "niveau_batterie_telephone", "type": "number" },
+    "phoneBatteryShown":{ "api": "niveau_batterie_telephone_vehicule_affichee", "type": "number" },
+    "charging":        { "api": "charge_vehicule_telephone", "type": "boolean" },
+    "call":            { "api": "VOYANT_vehicule_appel", "type": "boolean" },
+    "sms":             { "api": "VOYANT_vehicule_sms", "type": "boolean" },
+    "kitPaired":       { "api": "kit_jumele", "type": "boolean" },
+    "pin":             { "api": "mot_de_passe", "type": "string" },
+    "pinInput":        { "api": "champ_mdp", "type": "string" },
+    "deviceList":      { "api": "affichage_liste_appareils", "type": "string" },
+    "pairingMessage":  { "api": "affichage_appairage", "type": "string" },
+    "messages":        { "api": "messages_appairage", "type": "list" },
+
+    // Simulation parameters (parameters menu)
+    "mass":            { "api": "PARAM_SIMU_masse", "type": "number" },
+    "airDrag":         { "api": "PARAM_SIMU_frottement_air", "type": "number" },
+    "enginePower":     { "api": "PARAM_SIMU_puissance_moteur", "type": "number" },
+    "brakePower":      { "api": "PARAM_SIMU_puissance_frein", "type": "number" },
+    "restSpeed":       { "api": "PARAM_SIMU_vitesse_repos", "type": "number" },
+    "maxAccel":        { "api": "PARAM_SIMU_max_accel", "type": "number" },
+    "maxBrake":        { "api": "PARAM_SIMU_max_brake", "type": "number" },
+    "maxThrottle":     { "api": "PARAM_SIMU_max_throttle", "type": "number" },
+    "kp":              { "api": "PARAM_SIMU_Kp_regulateur", "type": "number" },
+    "ki":              { "api": "PARAM_SIMU_Ki_regulateur", "type": "number" },
+    "regulatorFreq":   { "api": "PARAM_SIMU_freq_regulateur", "type": "number" },
+    "refreshFreq":     { "api": "PARAM_SIMU_freq_rafraichissement", "type": "number" }
+  },
+
+  "events": {
+    "start":        "ev_demarrer",
+    "cruise":       "ev_regulateur",
+    "limiter":      "ev_limiteur",
+    "setpointPlus": "ev_vitesseConsigne_plus",
+    "setpointMinus":"ev_vitesseConsigne_moins",
+    "refuel":       "ev_remplir_carburant",
+    "jumpStart":    "ev_depanner_batterie",
+    "selectDevice": "ev_ok",
+    "pair":         "ev_jumeler"
+  },
+
+  // Content of the "Paramètres" menu: each key must exist in "attributes".
+  "parameters": [
+    {
+      "group": "Véhicule",
+      "items": [
+        { "key": "mass", "label": "Masse", "unit": "kg", "step": 10 },
+        { "key": "airDrag", "label": "Frottement de l'air", "step": 1 },
+        { "key": "enginePower", "label": "Puissance moteur", "step": 50 },
+        { "key": "brakePower", "label": "Puissance de freinage", "step": 10 },
+        { "key": "maxSpeed", "label": "Vitesse maximale", "unit": "km/h", "step": 5 },
+        { "key": "restSpeed", "label": "Vitesse au ralenti", "unit": "km/h", "step": 1 },
+        { "key": "maxAccel", "label": "Accélérateur max", "step": 1 },
+        { "key": "maxBrake", "label": "Frein max", "step": 1 },
+        { "key": "maxThrottle", "label": "Papillon max", "step": 0.5 }
+      ]
+    },
+    {
+      "group": "Régulateur / limiteur",
+      "items": [
+        { "key": "initialLimit", "label": "Consigne initiale du limiteur", "unit": "km/h", "step": 5 },
+        { "key": "kp", "label": "Kp", "step": 0.1 },
+        { "key": "ki", "label": "Ki", "step": 0.1 },
+        { "key": "regulatorFreq", "label": "Fréquence du régulateur", "step": 1 },
+        { "key": "refreshFreq", "label": "Fréquence de rafraîchissement", "step": 1 }
+      ]
+    },
+    {
+      "group": "Énergie",
+      "items": [
+        { "key": "fuel", "label": "Niveau de carburant", "unit": "L", "step": 1 },
+        { "key": "battery", "label": "Niveau de batterie", "unit": "%", "step": 1 },
+        { "key": "fuelThreshold", "label": "Seuil carburant faible", "unit": "L", "step": 1 },
+        { "key": "batteryThreshold", "label": "Seuil batterie faible", "unit": "%", "step": 1 }
+      ]
+    },
+    {
+      "group": "Kit mains libres",
+      "items": [
+        { "key": "pin", "label": "Mot de passe du kit" }
+      ]
+    }
+  ]
+}

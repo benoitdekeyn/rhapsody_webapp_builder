@@ -1,36 +1,32 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onBeforeUnmount } from 'vue';
+import Light from './Light.vue';
 import { car, actions } from '../core/car.js';
 
-const starting = ref(false);
-const position = computed(() => (starting.value ? 'start' : car.contact.value ? 'on' : 'off'));
+// START is a spring-loaded position: held while the pointer is down, the key goes back to ON on release.
+const cranking = ref(false);
+const position = computed(() => (cranking.value ? 'start' : car.contact.value ? 'on' : 'off'));
 const angle = computed(() => ({ off: -48, on: 0, start: 48 })[position.value]);
-const status = computed(() => {
-  if (!car.online.value) return 'Simulation hors ligne';
-  if (car.engine.value) return 'Moteur tournant';
-  if (car.contact.value) return car.fuelLow.value || car.batteryLow.value ? 'Panne : démarrage impossible' : 'Contact mis';
-  return 'Contact coupé';
-});
 
-async function crank() {
-  if (starting.value || car.engine.value) return;
-  starting.value = true;
-  const done = actions.start();
-  setTimeout(() => (starting.value = false), 900);
-  await done;
+function crankDown(e) {
+  if (!car.online.value || cranking.value) return;
+  cranking.value = true;
+  e.currentTarget.setPointerCapture?.(e.pointerId);
+  actions.start();
 }
-const off = () => actions.contactOff();
-const on = () => actions.contactOn();
+const crankUp = () => (cranking.value = false);
+onBeforeUnmount(crankUp);
+
 function keyClick() {
-  if (!car.contact.value) on();
-  else if (car.engine.value) off();
-  else crank();
+  if (!car.online.value) return;
+  if (car.contact.value) actions.contactOff();
+  else actions.contactOn();
 }
 </script>
 
 <template>
   <div class="ignition" :class="{ disabled: !car.online.value }">
-    <svg viewBox="0 0 160 150" class="lock" @click="keyClick">
+    <svg viewBox="0 0 160 130" class="lock" @click="keyClick">
       <defs>
         <radialGradient id="steel" cx="40%" cy="35%" r="75%">
           <stop offset="0%" stop-color="#c9d3e3" />
@@ -41,41 +37,40 @@ function keyClick() {
           <stop offset="100%" stop-color="#a8832c" />
         </linearGradient>
       </defs>
-      <circle cx="80" cy="82" r="58" fill="#10151f" stroke="#2c3850" stroke-width="3" />
-      <g class="marks" font-family="system-ui" font-size="10" font-weight="700" text-anchor="middle">
-        <text x="30" y="48" :fill="position === 'off' ? '#fff' : '#6c7c99'">OFF</text>
-        <text x="80" y="20" :fill="position === 'on' ? '#3ecf8e' : '#6c7c99'">ON</text>
-        <text x="130" y="48" :fill="position === 'start' ? '#ffb020' : '#6c7c99'">START</text>
+      <circle cx="80" cy="72" r="52" fill="#10151f" stroke="#2c3850" stroke-width="3" />
+      <g font-family="system-ui" font-size="10" font-weight="700" text-anchor="middle">
+        <text x="30" y="36" :fill="position === 'off' ? '#fff' : '#6c7c99'">OFF</text>
+        <text x="80" y="14" :fill="position === 'on' ? '#3ecf8e' : '#6c7c99'">ON</text>
+        <text x="130" y="36" :fill="position === 'start' ? '#ffb020' : '#6c7c99'">START</text>
       </g>
-      <circle cx="80" cy="82" r="40" fill="url(#steel)" stroke="#1a2030" stroke-width="3" />
-      <circle cx="80" cy="82" r="30" fill="#1d2432" />
-      <g class="key" :style="{ transform: `rotate(${angle}deg)` }">
-        <rect x="71" y="30" width="18" height="60" rx="9" fill="url(#keygold)" stroke="#5c4710" stroke-width="1.5" />
-        <circle cx="80" cy="42" r="4" fill="#1d2432" />
-        <rect x="76" y="88" width="8" height="26" fill="#cfd6e4" stroke="#6b7488" />
-        <path d="M84 96h5v4h-5zM84 104h4v4h-4z" fill="#cfd6e4" stroke="#6b7488" />
+      <circle cx="80" cy="72" r="36" fill="url(#steel)" stroke="#1a2030" stroke-width="3" />
+      <circle cx="80" cy="72" r="27" fill="#1d2432" />
+      <g class="key" :class="{ springing: !cranking }" :style="{ transform: `rotate(${angle}deg)` }">
+        <rect x="72" y="26" width="16" height="54" rx="8" fill="url(#keygold)" stroke="#5c4710" stroke-width="1.5" />
+        <circle cx="80" cy="37" r="3.5" fill="#1d2432" />
+        <rect x="76.5" y="78" width="7" height="24" fill="#cfd6e4" stroke="#6b7488" />
+        <path d="M83.5 85h5v4h-5zM83.5 93h4v4h-4z" fill="#cfd6e4" stroke="#6b7488" />
       </g>
     </svg>
     <div class="seg">
-      <button :class="{ active: position === 'off' }" :disabled="!car.online.value" @click="off">OFF</button>
-      <button :class="{ active: position === 'on' }" :disabled="!car.online.value" @click="on">ON</button>
-      <button class="start" :class="{ active: position === 'start' }" :disabled="!car.online.value || car.engine.value" @click="crank">START</button>
+      <button :class="{ active: position === 'off' }" :disabled="!car.online.value" @click="actions.contactOff()">OFF</button>
+      <button :class="{ active: position === 'on' }" :disabled="!car.online.value" @click="actions.contactOn()">ON</button>
+      <button class="start" :class="{ active: position === 'start' }" :disabled="!car.online.value" @pointerdown.prevent="crankDown" @pointerup="crankUp" @pointercancel="crankUp" @lostpointercapture="crankUp">START</button>
     </div>
-    <div class="status" :class="{ run: car.engine.value }">{{ status }}</div>
+    <Light label="MOTEUR" color="#3ecf8e" :on="car.engine.value" />
   </div>
 </template>
 
 <style scoped>
-.ignition { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 190px; user-select: none; }
+.ignition { display: flex; flex-direction: column; align-items: center; gap: 6px; user-select: none; }
 .ignition.disabled { opacity: 0.5; }
-.lock { width: 160px; cursor: pointer; filter: drop-shadow(0 6px 10px #0008); }
-.key { transform-origin: 80px 82px; transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.lock { width: 130px; cursor: pointer; filter: drop-shadow(0 6px 10px #0008); }
+.key { transform-origin: 80px 72px; transition: transform 0.12s ease-out; }
+.key.springing { transition: transform 0.3s cubic-bezier(0.3, 1.5, 0.5, 1); }
 .seg { display: flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.seg button { background: var(--panel); color: var(--text); border: 0; padding: 7px 14px; font: 700 11px system-ui, sans-serif; letter-spacing: 1px; cursor: pointer; border-right: 1px solid var(--border); }
+.seg button { background: var(--panel); color: var(--text); border: 0; padding: 6px 11px; font: 700 10px system-ui, sans-serif; letter-spacing: 1px; cursor: pointer; border-right: 1px solid var(--border); touch-action: none; }
 .seg button:last-child { border-right: 0; }
 .seg button.active { background: #3ecf8e; color: #04140d; }
 .seg button.start.active { background: #ffb020; color: #1b1100; }
 .seg button:disabled { cursor: default; opacity: 0.5; }
-.status { font-size: 12px; opacity: 0.75; }
-.status.run { color: #3ecf8e; opacity: 1; font-weight: 600; }
 </style>
