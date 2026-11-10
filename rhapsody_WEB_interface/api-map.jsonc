@@ -32,6 +32,15 @@
     "setpoint":        { "api": "vitesseConsigne", "type": "number" },
     "initialLimit":    { "api": "valeur_initiale_limiteur", "type": "number", "default": 50 },
 
+    // Vehicle ahead simulation
+    "vehicleAheadSpeed":      { "api": "vitesse_voiture_devant", "type": "number" },
+    "vehicleAheadDistance":   { "api": "distance_voiture_devant", "type": "number" },
+    "vehicleAheadDistanceInt":{ "api": "distance_entiere_voiture_devant", "type": "number" },
+    "interVehicleDistance":   { "api": "distance_inter_voiture", "type": "number" },
+    "safetyDistance":         { "api": "distance_securite", "type": "number", "default": 20 },
+    "vehicleAheadSimulation": { "api": "SWITCH_simulation_voiture_devant", "type": "boolean" },
+    "targetThrottle":         { "api": "target_throttle", "type": "number" },
+
     // Hands-free kit and phone
     "vehicleBluetooth":{ "api": "VOYANT_bluetooth_vehicule", "type": "boolean" },
     "vehicleConnected":{ "api": "VOYANT_vehicule_connecte", "type": "boolean" },
