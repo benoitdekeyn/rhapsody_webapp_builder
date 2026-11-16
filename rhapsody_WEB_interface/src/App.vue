@@ -70,21 +70,21 @@ onBeforeUnmount(disconnect);
 html, body, #app { height: 100%; }
 #app { display: flex; flex-direction: column; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, Segoe UI, sans-serif; }
-header { display: flex; align-items: center; gap: 16px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--panel); }
-h1 { margin: 0; font-size: 16px; }
-.status { font-size: 12px; display: flex; align-items: center; gap: 6px; }
-.status i { width: 9px; height: 9px; border-radius: 50%; background: #ff4d4d; display: inline-block; }
-.status.on i { background: #3ecf8e; }
-.status small { opacity: 0.55; }
-.warn { font-size: 12px; color: #ffb020; cursor: help; }
-.spacer { flex: 1; }
-.gear { background: none; border: 0; color: var(--text); font-size: 22px; cursor: pointer; }
-.reset { background: #ff4d4d22; color: #ff6b6b; border: 1px solid #ff4d4d66; border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
-.reset:hover:not(:disabled) { background: #ff4d4d44; }
-.reset:disabled { opacity: 0.5; cursor: default; }
-.view { background: none; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
-.error { background: #ff4d4d22; color: #ff6b6b; padding: 6px 20px; font-size: 12px; }
-main { flex: 1; min-height: 0; padding: 14px; box-sizing: border-box; }
-.debug { margin: 0 22px 22px; font: 11px Consolas, monospace; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px; max-height: 260px; overflow: auto; }
-.debug h4 { margin: 6px 0; }
+#app > header { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; padding: 10px 20px; border-bottom: 1px solid var(--border); background: var(--panel); }
+#app > header h1 { margin: 0; font-size: 16px; }
+#app > header .status { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+#app > header .status i { width: 9px; height: 9px; border-radius: 50%; background: #ff4d4d; display: inline-block; }
+#app > header .status.on i { background: #3ecf8e; }
+#app > header .status small { opacity: 0.55; }
+#app > header .warn { font-size: 12px; color: #ffb020; cursor: help; }
+#app > header .spacer { flex: 1; }
+#app > header .gear { background: none; border: 0; color: var(--text); font-size: 22px; cursor: pointer; }
+#app > header .reset { background: #ff4d4d22; color: #ff6b6b; border: 1px solid #ff4d4d66; border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
+#app > header .reset:hover:not(:disabled) { background: #ff4d4d44; }
+#app > header .reset:disabled { opacity: 0.5; cursor: default; }
+#app > header .view { background: none; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
+#app > .error { background: #ff4d4d22; color: #ff6b6b; padding: 6px 20px; font-size: 12px; }
+#app > main { flex: 1; min-height: 0; padding: 14px; box-sizing: border-box; overflow: auto; }
+#app > .debug { margin: 0 22px 22px; font: 11px Consolas, monospace; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px; max-height: 260px; overflow: auto; }
+#app > .debug h4 { margin: 6px 0; }
 </style>

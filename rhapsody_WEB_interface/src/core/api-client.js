@@ -76,12 +76,13 @@ export class SimApi {
       if (was || !this.closed) this.handlers.onStatus?.(false);
       this._scheduleReconnect();
     };
-    ws.onerror = () => {};
+    ws.onerror = () => this.handlers.onError?.(new Error('Connexion WebSocket impossible'));
     ws.onmessage = (m) => {
       let msg;
       try {
         msg = JSON.parse(m.data);
-      } catch {
+      } catch (e) {
+        this.handlers.onError?.(new Error(`Message WebSocket invalide: ${e.message}`));
         return;
       }
       if (msg.type === 'result' && this._pending.has(msg.reqId)) {
@@ -109,6 +110,8 @@ export class SimApi {
       this.ws.close();
     }
     this.connected = false;
+    for (const p of this._pending.values()) p.reject(new Error('connection closed'));
+    this._pending.clear();
   }
 
   _request(payload) {
@@ -116,7 +119,12 @@ export class SimApi {
     const reqId = ++this._reqId;
     return new Promise((resolve, reject) => {
       this._pending.set(reqId, { resolve, reject });
-      this.ws.send(JSON.stringify({ ...payload, reqId }));
+      try {
+        this.ws.send(JSON.stringify({ ...payload, reqId }));
+      } catch (e) {
+        this._pending.delete(reqId);
+        reject(e);
+      }
     });
   }
 

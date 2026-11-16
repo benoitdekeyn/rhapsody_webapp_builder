@@ -8,19 +8,27 @@ import { car, actions } from '../core/car.js';
 const screen = computed(() => {
   if (!car.contact.value) return { title: 'Système éteint', detail: 'Mettez le contact pour activer le kit mains libres.', tone: 'off' };
   if (!car.vehicleBluetooth.value) return { title: 'Démarrage du Bluetooth…', detail: 'Veuillez patienter.', tone: 'wait' };
-  if (car.connected.value) return { title: 'Téléphone connecté', detail: 'Appels et messages disponibles.', tone: 'ok' };
+  if (car.phoneConnected.value) return { title: 'Téléphone connecté', detail: 'Appels et messages disponibles.', tone: 'ok' };
   return { title: 'Bluetooth prêt', detail: `En attente de jumelage. Code du kit : ${car.pin.value}`, tone: 'bt' };
 });
-const battery = computed(() => Math.round(car.phoneBatteryShown.value));
+const battery = computed(() => Math.round(car.kitBatteryLevel.value));
+const callStatus = computed(() => {
+  if (car.ringing.value) return 'Appel entrant';
+  if (car.call.value || car.phoneCallActive.value) return 'Communication en cours';
+  return 'Aucun appel';
+});
+const canAnswer = computed(() => car.ringing.value);
+const canHangUp = computed(() => car.ringing.value || car.call.value || car.phoneCallActive.value);
+const canReadSms = computed(() => car.kitSmsCount.value > 0 && car.speedInteger.value <= 0);
 </script>
 
 <template>
-  <Panel title="Kit mains libres · Bluetooth">
+  <Panel title="Kit mains libres · Bluetooth" :scrollable="false">
     <template #lights>
       <Light label="BT" color="#4aa3ff" :on="car.vehicleBluetooth.value" />
-      <Light label="TÉL." color="#4aa3ff" :on="car.connected.value" />
-      <Light label="APPEL" color="#3ecf8e" blink :on="car.call.value" />
-      <Light label="SMS" color="#ffd24a" blink :on="car.sms.value" />
+      <Light label="TÉL." color="#4aa3ff" :on="car.phoneConnected.value" />
+      <Light label="APPEL" color="#3ecf8e" :on="car.call.value" />
+      <Light label="SMS" color="#ffd24a" :on="car.sms.value" />
     </template>
     <div class="head" :class="screen.tone">
       <div class="logo">ᛒ</div>
@@ -30,29 +38,44 @@ const battery = computed(() => Math.round(car.phoneBatteryShown.value));
       </div>
     </div>
 
-    <div v-if="car.connected.value" class="phone">
+    <div v-if="car.phoneConnected.value" class="phone">
       <div class="row">
         <span class="name">📱 Téléphone</span>
         <span class="batt" :class="{ low: battery < 20 }">
           <span class="cell"><i :style="{ width: battery + '%' }"></i></span>
           {{ battery }}%
-          <em v-if="car.charging.value">⚡ en charge</em>
+          <em v-if="car.charging.value">⚡ USB branché</em>
         </span>
       </div>
-      <div class="notif" :class="{ on: car.call.value }">📞 {{ car.call.value ? 'Appel entrant' : 'Aucun appel' }}</div>
-      <div class="notif" :class="{ on: car.sms.value }">✉ {{ car.sms.value ? 'Nouveau message reçu' : 'Aucun nouveau message' }}</div>
     </div>
 
-    <div class="tools">
-      <label class="switch" :class="{ disabled: !car.online.value }">
-        <input type="checkbox" :checked="car.charging.value" :disabled="!car.online.value" @change="actions.set('charging', $event.target.checked)" />
-        <span class="knob"></span> Recharger le téléphone (USB véhicule)
-      </label>
+    <div v-if="car.phoneConnected.value" class="communication">
+      <div class="call-status" :class="{ ringing: car.ringing.value, active: canHangUp }">
+        <span>📞 {{ callStatus }}</span>
+        <div class="call-actions">
+          <button class="answer" :disabled="!car.online.value || !canAnswer" @click="actions.fire('kitAnswerButton')">Décrocher</button>
+          <button class="hang-up" :disabled="!car.online.value || !canHangUp" @click="actions.fire('kitHangUpButton')">Raccrocher</button>
+        </div>
+      </div>
+
+      <div class="sms">
+        <div class="sms-summary">
+          <span>Messages en attente</span>
+          <b>{{ car.kitSmsCount.value }}</b>
+        </div>
+        <button class="read-sms" :disabled="!car.online.value || !canReadSms" @click="actions.fire('kitReadSms')">
+          {{ car.kitSmsCount.value ? 'Lire le prochain message' : 'Aucun message à lire' }}
+        </button>
+        <small v-if="car.speedInteger.value > 0" class="hint">Arrêtez le véhicule pour lire un message.</small>
+        <small v-else class="hint">La lecture est déclenchée par le kit mains libres.</small>
+      </div>
     </div>
+
   </Panel>
 </template>
 
 <style scoped>
+:deep(header) { flex-wrap: wrap; }
 .head { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 14px; background: linear-gradient(135deg, #0a1322, #11203a); border: 1px solid #1f3355; margin-bottom: 8px; }
 .logo { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 22px; font-weight: 700; background: #1b2740; color: #4aa3ff; }
 .head.bad .logo { color: #ff6b6b; }
@@ -62,21 +85,29 @@ const battery = computed(() => Math.round(car.phoneBatteryShown.value));
 @keyframes pulse { 50% { box-shadow: 0 0 20px #4aa3ff99; } }
 .t { font: 700 14px system-ui, sans-serif; }
 .d { font-size: 12px; opacity: 0.8; margin-top: 2px; }
-.phone { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; display: grid; gap: 6px; }
-.row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.phone { border: 1px solid var(--border); border-radius: 12px; padding: 7px 10px; margin-bottom: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: space-between; align-items: center; font-size: 13px; }
 .batt { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
 .batt em { font-style: normal; font-size: 11px; color: #ffd24a; }
 .cell { width: 34px; height: 14px; border: 1.5px solid currentColor; border-radius: 3px; padding: 1px; box-sizing: border-box; }
 .cell i { display: block; height: 100%; background: #3ecf8e; border-radius: 1px; }
 .batt.low .cell i { background: #ff4d4d; }
-.notif { font-size: 12px; opacity: 0.45; }
-.notif.on { opacity: 1; color: #ffd24a; font-weight: 600; }
-.tools { display: grid; gap: 10px; border-top: 1px solid var(--border); padding-top: 12px; font-size: 12px; }
-.switch { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.switch.disabled { opacity: 0.5; }
-.switch input { display: none; }
-.knob { position: relative; width: 36px; height: 20px; border-radius: 10px; background: #2a3344; transition: background 0.2s; }
-.knob::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
-input:checked + .knob { background: #3ecf8e; }
-input:checked + .knob::after { transform: translateX(16px); }
+.communication { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.call-status, .sms { border: 1px solid var(--border); border-radius: 12px; padding: 9px 10px; }
+.call-status { display: grid; gap: 8px; font-size: 12px; }
+.call-status.ringing { border-color: #ffb020; color: #ffd27b; }
+.call-status.active { border-color: #3ecf8e; }
+.call-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.call-actions button, .read-sms { padding: 8px 10px; border: 1px solid var(--border); border-radius: 9px; color: var(--text); background: #1a2433; font: 700 11px system-ui, sans-serif; cursor: pointer; }
+.call-actions .answer:not(:disabled) { background: #155936; border-color: #3ecf8e; color: #e6fff1; }
+.call-actions .hang-up:not(:disabled) { background: #662b32; border-color: #ff6b6b; color: #fff0f0; }
+.call-actions button:disabled, .read-sms:disabled { opacity: 0.42; cursor: default; }
+.sms { display: grid; gap: 7px; }
+.sms-summary { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+.sms-summary b { min-width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: #263650; color: #fff; font: 700 14px Consolas, monospace; }
+.read-sms:not(:disabled) { border-color: #4aa3ff; background: #122b48; }
+.hint { color: #98a8c0; font-size: 10px; line-height: 1.35; }
+@media (max-width: 500px) {
+  .communication { grid-template-columns: minmax(0, 1fr); }
+}
 </style>

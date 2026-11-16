@@ -46,10 +46,11 @@ Si le `main` généré est de type animation (`OXF::initialize(argc, argv, port)
 
 ## Configuration (`rhapsody-api.config.jsonc`)
 
-Commentaires et virgules finales autorisés ; chemins relatifs au fichier ; clés inconnues refusées.
+Commentaires et virgules finales autorisés ; chemins relatifs au fichier sauf `codeDir` et `assets.from` si `projectDir` est défini ; clés inconnues refusées.
 
 | Clé | Rôle |
 |---|---|
+| `projectDir` | racine du projet Rhapsody (optionnelle) ; base de `codeDir` et `assets.from` |
 | `codeDir` | dossier généré par Rhapsody |
 | `exe` | chemin/nom de l'exécutable |
 | `schema.dir`, `schema.baseName` | dossier et nom de base des schémas horodatés |
@@ -60,11 +61,18 @@ Commentaires et virgules finales autorisés ; chemins relatifs au fichier ; clé
 | `exclude.classes/attributes/events` | éléments internes masqués (`Classe.attr`, `attr`, jokers `*` `?`) |
 | `readOnly` | attributs exposés en lecture seule |
 | `typeMap` | alias de types (`{"MonType": "int"}`) |
+| `attributeOverrides` | initialisations d'attributs à remplacer uniquement dans la copie C++ compilée |
 | `assets` | fichiers copiés à côté de l'exe (`{from, to}`) |
 | `build.*` | `buildType`, `instrumentation` (`None`/`Animation`), defines/includes/libs/flags supplémentaires, `excludeSources`, `vcvarsPath`, `rhapsodyRoot`, `frameworkLibRoot`, `libPrefix`, `keepWorkDir`, `smokeTest`, `smokeTestTimeoutSec` |
-| `run.cwd`, `run.args` | répertoire et arguments au lancement |
+| `run.cwd`, `run.args`, `run.useExeDir` | répertoire et arguments au lancement ; `useExeDir` impose le dossier de l'exécutable comme répertoire courant, même au lancement direct |
 
-Surcharges à l'exécution : `RHAPSODY_API_PORT`, `RHAPSODY_API_HOST`, `RHAPSODY_API_DISABLE=1`, `--api-port=`, `--api-host=`.
+Surcharges à l'exécution : `RHAPSODY_API_PORT`, `RHAPSODY_API_HOST`, `RHAPSODY_API_DISABLE=1`, `RHAPSODY_API_NO_BROWSER=1`, `--api-port=`, `--api-host=`. Le navigateur s'ouvre après la mise en écoute, sur le site personnalisé s'il existe, sinon sur la page simple. Pas d'ouverture si le serveur est désactivé, au reset ou pendant le test de fumée.
+
+### Valeurs initiales pour l'exécutable
+
+`attributeOverrides` accepte par exemple `{ "class": "MaClasse", "attribute": "repertoire", "type": "OMString", "value": "sons\\" }`. Le champ `class` est facultatif si le nom d'attribut est unique ; une ambiguïté provoque une erreur. Les types acceptés sont `OMString`, `std::string`, `bool`, `int`, `float` et `double`, avec une valeur JSON correspondante. Seuls les attributs scalaires non constants et non statiques, explicitement initialisés dans chaque constructeur, sont pris en charge. La configuration racine surcharge celle de l'API quand elle définit cette liste.
+
+Le remplacement concerne les listes d'initialisation des constructeurs dans la copie de travail, jamais les fichiers Rhapsody. Le modèle peut modifier l'attribut après construction ; le build signale les attributs introuvables, incompatibles ou sans initialisation prise en charge.
 
 ## API
 
@@ -95,4 +103,4 @@ sim.sendEvent("ev_tentative_mdp", { mdp: "1234" });
 - Seuls les attributs de types simples (bool, entiers, enums, flottants, `OMString`, `std::string`, `char[N]`, tableaux de ceux-ci) sont exposés ; les autres sont listés dans `skipped` du schéma (utiliser `typeMap`).
 - Les opérations ne sont pas exposées ; les objets copiés ne sont pas suivis.
 - Sans `token`, toute page locale peut piloter le simulateur : garder `host` à `127.0.0.1` ou définir un token.
-- `PlaySound(".\\..\\media\\...")` dans le modèle dépend du répertoire courant : utiliser `assets` / `run.cwd`.
+- `PlaySound` résout ses chemins relatifs depuis le répertoire courant. La configuration fournie copie le dossier `sons` du projet à côté de l'exécutable et active `run.useExeDir` ; la configuration racine adapte le chemin initial du modèle pour l'exécutable.

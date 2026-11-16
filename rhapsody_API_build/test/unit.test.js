@@ -10,6 +10,7 @@ const { parseModel, maskCode } = require('../src/parser');
 const { applyFilters, buildSchema, writeSchema, findPreviousSchema, diffSchemas } = require('../src/schema');
 const { patchHeader, generateApiCpp } = require('../src/codegen');
 const { loadConfig } = require('../src/config');
+const { applyAttributeOverrides } = require('../src/attribute-overrides');
 
 const HEADER = `
 //## package Pkg
@@ -140,6 +141,54 @@ test('codegen: header patch and api_gen.cpp', () => {
   assert.ok(!/s0_\d+.*->fixed/.test(cpp), 'const attribute has no setter');
 });
 
+test('attribute overrides replace only configured constructor initializers', () => {
+  const header = `
+//## class Car
+class Car {
+  OMString soundDir; //## attribute soundDir
+  int speed; //## attribute speed
+};
+//## class Other
+class Other {
+  OMString soundDir; //## attribute soundDir
+};
+`;
+  const source = String.raw`
+Car::Car() : soundDir("..\\..\\sons\\"), speed(compute(1, 2)) { speed = 3; }
+Other::Other() : soundDir("unchanged") {}
+`;
+  const input = [{ name: 'Car.h', text: header }, { name: 'Car.cpp', text: source }];
+  const model = parseModel(input);
+  const changed = applyAttributeOverrides(input, model, [
+    { class: 'Car', attribute: 'soundDir', type: 'OMString', value: 'sons\\' },
+    { class: 'Car', attribute: 'speed', type: 'int', value: 42 },
+  ]);
+  assert.ok(changed.get('Car.cpp').includes(String.raw`soundDir("sons\\"), speed(42) { speed = 3; }`));
+  assert.ok(changed.get('Car.cpp').includes('Other::Other() : soundDir("unchanged")'));
+  assert.ok(input[1].text.includes(String.raw`soundDir("..\\..\\sons\\")`));
+  assert.throws(() => applyAttributeOverrides(input, model, [{ attribute: 'soundDir', type: 'OMString', value: '' }]), /ambiguous/);
+  assert.throws(() => applyAttributeOverrides(input, model, [{ class: 'Car', attribute: 'speed', type: 'bool', value: true }]), /type bool/);
+  assert.throws(() => applyAttributeOverrides(input, model, [{ class: 'Car', attribute: 'speed', type: 'int', value: 1.5 }]), /32-bit integer/);
+});
+
+test('attribute overrides fail if a constructor does not initialize the attribute', () => {
+  const header = '//## class Car\nclass Car {\n bool enabled; //## attribute enabled\n};\n';
+  const source = 'Car::Car() : enabled(false) {}\nCar::Car(int n) : other(n) {}\n';
+  const input = [{ name: 'Car.h', text: header }, { name: 'Car.cpp', text: source }];
+  assert.throws(() => applyAttributeOverrides(input, parseModel(input), [
+    { attribute: 'enabled', type: 'bool', value: true },
+  ]), /has no initializer for enabled/);
+});
+
+test('attribute overrides support empty std::string values', () => {
+  const header = '//## class Car\nclass Car {\n std::string name; //## attribute name\n};\n';
+  const input = [{ name: 'Car.h', text: header }, { name: 'Car.cpp', text: 'Car::Car() : name("old") {}' }];
+  const changed = applyAttributeOverrides(input, parseModel(input), [
+    { attribute: 'name', type: 'std::string', value: '' },
+  ]);
+  assert.strictEqual(changed.get('Car.cpp'), 'Car::Car() : name("") {}');
+});
+
 test('config: unknown keys rejected, paths resolved', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapi-'));
   fs.mkdirSync(path.join(dir, 'code'));
@@ -151,6 +200,27 @@ test('config: unknown keys rejected, paths resolved', () => {
   assert.strictEqual(cfg.server.pushRateHz, 20);
   fs.writeFileSync(file, '{ "codeDir": "./code", "bogus": 1 }');
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('config: generated code and assets resolve from the project directory', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rapi-'));
+  try {
+    const project = path.join(dir, 'project');
+    fs.mkdirSync(path.join(project, 'CodesGeneres', 'ModeAnimation'), { recursive: true });
+    const file = path.join(dir, 'c.jsonc');
+    fs.writeFileSync(file, JSON.stringify({
+      projectDir: 'project',
+      codeDir: 'CodesGeneres/ModeAnimation',
+      assets: [{ from: 'sons', to: 'sons' }],
+      run: { useExeDir: true },
+    }));
+    const cfg = loadConfig(file);
+    assert.strictEqual(cfg.codeDir, path.join(project, 'CodesGeneres', 'ModeAnimation'));
+    assert.strictEqual(cfg.assets[0].from, path.join(project, 'sons'));
+    assert.strictEqual(cfg.run.useExeDir, true);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('config: custom site.json drives host/port/token, routes validated', () => {

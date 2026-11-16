@@ -6,6 +6,7 @@ const log = require('./logger');
 const { parseModel } = require('./parser');
 const { applyFilters, buildSchema, writeSchema, findPreviousSchema, diffSchemas, globToRegExp } = require('./schema');
 const { patchHeader, generateApiCpp } = require('./codegen');
+const { applyAttributeOverrides } = require('./attribute-overrides');
 const tool = require('./toolchain');
 const { smokeTest } = require('./smoke');
 
@@ -166,15 +167,18 @@ async function build(config, options = {}) {
 
     log.step(4, TOTAL_STEPS, 'Preparing working copy and injecting the API');
     const work = config.build.workDir;
+    const excludeSrc = config.build.excludeSources.map(globToRegExp);
+    const included = analysis.files.filter((f) => !(/\.(c|cpp|cc|cxx)$/i.test(f.name) && excludeSrc.some((re) => re.test(f.name))));
+    const overridden = applyAttributeOverrides(included, model, config.attributeOverrides);
     fs.rmSync(work, { recursive: true, force: true });
     fs.mkdirSync(work, { recursive: true });
-    const excludeSrc = config.build.excludeSources.map(globToRegExp);
     for (const f of analysis.files) {
       if (/\.(c|cpp|cc|cxx)$/i.test(f.name) && excludeSrc.some((re) => re.test(f.name))) {
         log.detail(`excluded source: ${f.name}`);
         continue;
       }
-      let text = f.text;
+      let text = overridden.get(f.name) || f.text;
+      if (overridden.has(f.name)) log.ok(`configured attribute initializers applied in ${f.name}`);
       // Animation-style main: initialize(argc, argv, port) does not exist without OMANIMATOR.
       if (config.build.instrumentation === 'None' && /OXF::initialize\(\s*argc\s*,\s*argv\s*,[^)]*\)/.test(text)) {
         text = text.replace(/OXF::initialize\(\s*argc\s*,\s*argv\s*,[^)]*\)/g, 'OXF::initialize()');

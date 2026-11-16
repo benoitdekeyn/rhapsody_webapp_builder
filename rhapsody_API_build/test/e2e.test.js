@@ -20,7 +20,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 test('built simulator: REST + WebSocket', { skip: !hasExe && 'executable not built', timeout: 60000 }, async (t) => {
   const port = await freePort();
   const base = `http://127.0.0.1:${port}`;
-  const child = spawn(config.exe, [], { cwd: config.run.cwd, env: { ...process.env, RHAPSODY_API_PORT: String(port) }, windowsHide: true });
+  const child = spawn(config.exe, [], { cwd: config.run.cwd, env: { ...process.env, RHAPSODY_API_PORT: String(port), RHAPSODY_API_NO_BROWSER: '1' }, windowsHide: true });
   t.after(() => child.kill());
   for (let i = 0; i < 50; i++) {
     try {

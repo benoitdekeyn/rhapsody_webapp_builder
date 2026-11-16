@@ -37,14 +37,14 @@ export function buildCar(attributeMap, read = attributeValue) {
 }
 
 export const car = buildCar(attributes);
-car.online = computed(() => store.connected);
+car.online = computed(() => store.connected && !!store.schema && store.instances.length > 0);
 car.mode = computed(() => (car.cruise.value ? 'cruise' : car.limiter.value ? 'limiter' : 'manual'));
 car.connected = computed(() => car.vehicleConnected.value && car.phoneConnected.value);
-car.distanceKm = car.distance;
+car.distanceKm = computed(() => car.distance.value / 1000);
 car.step = computed(() =>
   pairingStep({
     phoneBluetooth: car.phoneBluetooth.value,
-    connected: car.connected.value,
+    connected: car.vehicleConnected.value,
     message: car.pairingMessage.value,
     messages: car.messages.value,
   }),
@@ -53,7 +53,10 @@ car.step = computed(() =>
 const quiet = (promise) => promise.catch(() => {});
 function lookup(table, key, what) {
   const found = table[key];
-  if (!found) console.error(`api-map.jsonc: unknown ${what} "${key}"`);
+  if (!found) {
+    store.error = `api-map.jsonc: unknown ${what} "${key}"`;
+    console.error(store.error);
+  }
   return found;
 }
 
@@ -69,8 +72,10 @@ export const actions = {
   contactOn: () => actions.set('contact', true),
   contactOff: () => actions.set('contact', false),
   start: () => actions.fire('start'),
-  async submitPin(pin) {
-    await actions.set('pinInput', pin);
-    return actions.fire('pair');
+  submitPin(pin) {
+    const def = lookup(attributes, 'pinInput', 'attribute');
+    const name = lookup(events, 'pair', 'event');
+    if (!def || !name) return Promise.resolve();
+    return quiet(writeAttribute(def.api, pin).then(() => fireEvent(name, {})));
   },
 };

@@ -7,6 +7,7 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
+#include <shellapi.h>
 
 #include <algorithm>
 #include <atomic>
@@ -24,6 +25,7 @@
 #include "rhapsody_api_core.h"
 
 #pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "shell32.lib")
 
 namespace RhapsodyApi {
 namespace {
@@ -971,15 +973,28 @@ BOOL WINAPI onConsoleEvent(DWORD) {
 
 void startServer() {
     SetConsoleCtrlHandler(onConsoleEvent, TRUE);
+    const GeneratedApi& api = generatedApi();
+    if (api.useExeDir) {
+        wchar_t exe[32768];
+        DWORD n = GetModuleFileNameW(nullptr, exe, (DWORD)(sizeof(exe) / sizeof(exe[0])));
+        std::wstring dir(exe, n);
+        size_t slash = dir.find_last_of(L"\\/");
+        if (n == 0 || n >= sizeof(exe) / sizeof(exe[0]) || slash == std::wstring::npos ||
+            !SetCurrentDirectoryW(dir.substr(0, slash).c_str())) {
+            std::printf("[API] ERROR: cannot set the working directory to the executable folder (error %lu)\n", GetLastError());
+            std::fflush(stdout);
+        }
+    }
     // Started by a reset: wait for the previous process to release the port.
+    bool restarted = false;
     if (const char* w = std::getenv("RHAPSODY_API_WAIT_PID")) {
+        restarted = true;
         if (HANDLE h = OpenProcess(SYNCHRONIZE, FALSE, (DWORD)std::atoi(w))) {
             WaitForSingleObject(h, 15000);
             CloseHandle(h);
         }
         SetEnvironmentVariableW(L"RHAPSODY_API_WAIT_PID", nullptr);
     }
-    const GeneratedApi& api = generatedApi();
     std::string host = api.host;
     int port = api.port;
     if (const char* e = std::getenv("RHAPSODY_API_HOST")) host = e;
@@ -1015,6 +1030,25 @@ void startServer() {
     std::thread(broadcasterLoop, api.pushRateHz).detach();
     std::printf("[API] listening on http://%s:%d  (REST /api/*, WebSocket /ws, web UI /)\n", host.c_str(), port);
     std::fflush(stdout);
+
+    const char* noBrowser = std::getenv("RHAPSODY_API_NO_BROWSER");
+    if (!restarted && !(noBrowser && *noBrowser == '1')) {
+        const char* route = nullptr;
+        if (fileExists(exeDir() + "\\" + api.customDir + "\\index.html")) route = api.customRoute;
+        else if (fileExists(exeDir() + "\\" + api.webDir + "\\index.html")) route = api.webRoute;
+        if (route) {
+            std::string url = "http://" + std::string(host == "0.0.0.0" ? "127.0.0.1" : host) +
+                              ":" + std::to_string(port) + route;
+            if (url.back() != '/') url += '/';
+            if ((INT_PTR)ShellExecuteA(nullptr, "open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= 32) {
+                std::printf("[API] ERROR: cannot open browser; open %s manually\n", url.c_str());
+                std::fflush(stdout);
+            }
+        } else {
+            std::printf("[API] WARNING: no web interface found; browser not opened\n");
+            std::fflush(stdout);
+        }
+    }
 }
 
 struct Boot {

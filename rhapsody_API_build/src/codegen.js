@@ -116,7 +116,7 @@ function generateApiCpp({ filtered, schemaText, config, headers }) {
   push(`const GeneratedApi api = {`);
   push(`  classes, ${filtered.classes.length}, events, ${filtered.events.length},`);
   push(`  schemaBytes, ${bytes.length},`);
-  push(`  ${cstr(config.server.host)}, ${config.server.port}, ${config.server.pushRateHz}, ${cstr(config.web.dir)}, ${cstr(config.web.route)}, ${cstr(config.customWeb.dir)}, ${cstr(config.customWeb.route)}, ${cstr(config.server.token || '')}, ${config.server.cors ? 'true' : 'false'}`);
+  push(`  ${cstr(config.server.host)}, ${config.server.port}, ${config.server.pushRateHz}, ${cstr(config.web.dir)}, ${cstr(config.web.route)}, ${cstr(config.customWeb.dir)}, ${cstr(config.customWeb.route)}, ${cstr(config.server.token || '')}, ${config.server.cors ? 'true' : 'false'}, ${config.run && config.run.useExeDir ? 'true' : 'false'}`);
   push('};');
   push('} // namespace');
   push('');

@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { spawn, spawnSync } = require('child_process');
 const { parseJsonc } = require('../rhapsody_API_build/src/jsonc');
+const { siteOverride } = require('../rhapsody_WEB_interface/site-override.cjs');
 
 const ROOT = path.join(__dirname, '..');
 const CONFIG_NAME = 'rhapsody-webapp.config.jsonc';
@@ -73,6 +74,7 @@ function loadConfig(file) {
   const raw = parseJsonc(fs.readFileSync(configFile, 'utf8'), path.basename(configFile));
   const base = path.dirname(configFile);
   const abs = (p) => (p ? path.resolve(base, p) : '');
+  const projectDir = abs(raw.projectDir);
   const api = { host: '127.0.0.1', port: 8080, token: '', ...raw.api };
   const routes = { custom: '/custom', simple: '/api', ...raw.routes };
   const site = { title: '', reconnectMs: 1000, theme: 'dark', showDebug: false, ...raw.site };
@@ -86,7 +88,9 @@ function loadConfig(file) {
 
   return {
     configFile,
-    codeDir: abs(raw.codeDir),
+    projectDir,
+    codeDir: raw.codeDir ? path.resolve(projectDir || base, raw.codeDir) : '',
+    attributeOverrides: raw.attributeOverrides,
     api,
     routes,
     site,
@@ -103,14 +107,6 @@ function loadConfig(file) {
 
 // Address used by a browser to reach the API.
 const browserHost = (host) => (host === '0.0.0.0' || host === '::' ? 'localhost' : host);
-
-function siteOverride(cfg) {
-  return JSON.stringify({
-    ...(cfg.site.title ? { title: cfg.site.title } : {}),
-    api: { url: `http://${browserHost(cfg.api.host)}:${cfg.api.port}`, token: cfg.api.token, reconnectMs: cfg.site.reconnectMs },
-    ui: { theme: cfg.site.theme, showDebug: cfg.site.showDebug },
-  });
-}
 
 function run(command, args, options) {
   const r = spawnSync(command, args, { stdio: 'inherit', ...options });
@@ -155,7 +151,7 @@ function buildWeb(cfg, step, total) {
   out.step(step, total, 'Building the website and copying it into the API project');
   ensureWebDeps(cfg);
   fs.rmSync(cfg.webDist, { recursive: true, force: true });
-  if (npm(['run', 'build'], cfg.webDir, { RHAPSODY_SITE_OVERRIDE: siteOverride(cfg) }) !== 0) throw new Error('Website build failed');
+  if (npm(['run', 'build'], cfg.webDir, { RHAPSODY_SITE_OVERRIDE: JSON.stringify(siteOverride(cfg)) }) !== 0) throw new Error('Website build failed');
   if (!fs.existsSync(path.join(cfg.webDist, 'index.html'))) throw new Error(`Website build produced no index.html in ${cfg.webDist}`);
   emptyDir(cfg.customTarget);
   copyDir(cfg.webDist, cfg.customTarget);
@@ -164,7 +160,11 @@ function buildWeb(cfg, step, total) {
 }
 
 function codeDirArgs(cfg) {
-  return cfg.codeDir ? ['--set', `codeDir=${JSON.stringify(cfg.codeDir)}`] : [];
+  return [
+    ...(cfg.projectDir ? ['--set', `projectDir=${JSON.stringify(cfg.projectDir)}`] : []),
+    ...(cfg.codeDir ? ['--set', `codeDir=${JSON.stringify(cfg.codeDir)}`] : []),
+    ...(cfg.attributeOverrides !== undefined ? ['--set', `attributeOverrides=${JSON.stringify(cfg.attributeOverrides)}`] : []),
+  ];
 }
 
 function buildApi(cfg, opts, step, total) {
@@ -199,7 +199,8 @@ function watchedDir(cfg) {
   if (cfg.codeDir) return cfg.codeDir;
   const raw = parseJsonc(fs.readFileSync(cfg.apiConfig, 'utf8'), path.basename(cfg.apiConfig));
   if (!raw.codeDir) throw new Error('No "codeDir" in the root or API configuration');
-  return path.resolve(path.dirname(cfg.apiConfig), raw.codeDir);
+  const projectDir = cfg.projectDir || (raw.projectDir ? path.resolve(path.dirname(cfg.apiConfig), raw.projectDir) : path.dirname(cfg.apiConfig));
+  return path.resolve(projectDir, raw.codeDir);
 }
 
 // Rebuilds and restarts the executable whenever the Rhapsody generated code changes.
@@ -218,7 +219,7 @@ async function devApi(cfg, opts) {
     stopExe(cfg);
     try {
       buildApi(cfg, { ...opts, smoke: false }, 1, 1);
-      child = spawn(path.join(cfg.outputDir, cfg.exeName), [], { cwd: cfg.outputDir, stdio: 'inherit' });
+      child = spawn(path.join(cfg.outputDir, cfg.exeName), [], { cwd: cfg.outputDir, stdio: 'inherit', env: { ...process.env, RHAPSODY_API_NO_BROWSER: '1' } });
       console.log(`\n  Running. Watching ${dir} (Ctrl+C to quit)`);
     } catch (e) {
       console.error(`\n  ${e.message}\n  Waiting for the next change...`);
@@ -292,7 +293,7 @@ async function main() {
       break;
     case 'dev':
       ensureWebDeps(cfg);
-      process.exitCode = npm(['run', 'dev'], cfg.webDir, { RHAPSODY_SITE_OVERRIDE: siteOverride(cfg) });
+      process.exitCode = npm(['run', 'dev'], cfg.webDir, { RHAPSODY_SITE_OVERRIDE: JSON.stringify(siteOverride(cfg)) });
       break;
     case 'test': {
       const a = run(process.execPath, ['--test', 'test/unit.test.js', 'test/e2e.test.js'], { cwd: cfg.apiDir });
@@ -318,7 +319,7 @@ async function main() {
       break;
     case 'web':
       ensureWebDeps(cfg);
-      process.exitCode = npm(opts.rest.length ? opts.rest : ['run'], cfg.webDir, { RHAPSODY_SITE_OVERRIDE: siteOverride(cfg) });
+      process.exitCode = npm(opts.rest.length ? opts.rest : ['run'], cfg.webDir, { RHAPSODY_SITE_OVERRIDE: JSON.stringify(siteOverride(cfg)) });
       break;
     default:
       throw new Error(`Unknown command "${opts.command}"\n${HELP}`);

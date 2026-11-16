@@ -14,13 +14,14 @@ export const store = reactive({
 });
 
 let api = null;
+let connectionVersion = 0;
 
-async function loadSchema(current) {
+async function loadSchema(current, version) {
   try {
     const schema = await current.fetchSchema();
-    if (api === current) store.schema = schema;
+    if (api === current && version === connectionVersion) store.schema = schema;
   } catch (e) {
-    if (api === current) store.error = `Schéma indisponible: ${e.message}`;
+    if (api === current && version === connectionVersion) store.error = `Schéma indisponible: ${e.message}`;
   }
 }
 
@@ -32,29 +33,38 @@ export function connect(apiSettings) {
   const current = new SimApi(apiSettings, {
     onStatus(on) {
       if (api !== current) return;
+      const version = ++connectionVersion;
       store.connected = on;
       store.connecting = !on;
       if (on) {
         store.error = '';
-        loadSchema(current);
+        loadSchema(current, version);
+      } else {
+        store.schema = null;
+        store.state = {};
+        store.instances = [];
       }
     },
     onSnapshot(msg) {
+      if (api !== current) return;
       const model = { state: store.state, instances: store.instances };
       applyMessage(model, msg);
       store.state = model.state;
       store.instances = model.instances;
     },
     onDelta(msg) {
+      if (api !== current) return;
       const model = { state: store.state, instances: store.instances };
       applyMessage(model, msg);
       store.instances = model.instances;
     },
     onEvent(msg) {
+      if (api !== current) return;
       store.eventLog.unshift({ t: Date.now(), name: msg.name, instance: msg.instance, args: msg.args });
       if (store.eventLog.length > 100) store.eventLog.pop();
     },
     onError(e) {
+      if (api !== current) return;
       store.error = e.message;
     },
   });
@@ -63,10 +73,14 @@ export function connect(apiSettings) {
 }
 
 export function disconnect() {
+  ++connectionVersion;
   if (api) api.close();
   api = null;
   store.connected = false;
   store.connecting = false;
+  store.schema = null;
+  store.instances = [];
+  store.state = {};
 }
 
 export async function testConnection(apiSettings) {
@@ -79,7 +93,7 @@ export async function testConnection(apiSettings) {
 
 export function attributeValue(attribute, instanceHint = '') {
   const id = resolveInstanceId(store.schema, attribute, instanceHint);
-  const key = findStateKey(store.state, id) || Object.keys(store.state).find((k) => attribute in store.state[k]);
+  const key = id ? findStateKey(store.state, id) : '';
   return key ? store.state[key]?.[attribute] : undefined;
 }
 
@@ -103,13 +117,17 @@ function report(promise, what) {
 }
 
 export function writeAttribute(attribute, value, instanceHint = '') {
-  if (!api) return Promise.reject(new Error('not connected'));
+  if (!api) return report(Promise.reject(new Error('not connected')), `écriture ${attribute}`);
+  const info = attributeInfo(attribute, instanceHint);
+  if (!info.known) return report(Promise.reject(new Error("attribut absent du schéma de l'exécutable")), `écriture ${attribute}`);
+  if (!info.writable) return report(Promise.reject(new Error('attribut non modifiable')), `écriture ${attribute}`);
   const id = resolveInstanceId(store.schema, attribute, instanceHint);
   return report(api.set(id, attribute, value), `écriture ${attribute}`);
 }
 
 export function fireEvent(name, args = {}, instanceHint = '') {
-  if (!api) return Promise.reject(new Error('not connected'));
+  if (!api) return report(Promise.reject(new Error('not connected')), `événement ${name}`);
+  if (!eventInfo(name).known) return report(Promise.reject(new Error("événement absent du schéma de l'exécutable")), `événement ${name}`);
   return report(api.sendEvent(name, args, instanceHint), `événement ${name}`);
 }
 

@@ -59,7 +59,7 @@ async function smokeTest(config, schema, log) {
   const base = `http://127.0.0.1:${port}`;
   const token = config.server.token ? `?token=${encodeURIComponent(config.server.token)}` : '';
   const headers = config.server.token ? { Authorization: `Bearer ${config.server.token}` } : {};
-  const env = { ...process.env, RHAPSODY_API_PORT: String(port), RHAPSODY_API_HOST: '127.0.0.1' };
+  const env = { ...process.env, RHAPSODY_API_PORT: String(port), RHAPSODY_API_HOST: '127.0.0.1', RHAPSODY_API_NO_BROWSER: '1' };
   const child = spawn(config.exe, config.run.args, { cwd: config.run.cwd, env, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
   let output = '';
   let exited = null;

@@ -4,6 +4,7 @@ import IgnitionKey from './IgnitionKey.vue';
 import PedalControl from './PedalControl.vue';
 import SpeedControl from './SpeedControl.vue';
 import HandsFree from './HandsFree.vue';
+import Radio from './Radio.vue';
 import Phone from './Phone.vue';
 import Slope from './Slope.vue';
 import { car, actions } from '../core/car.js';
@@ -28,7 +29,10 @@ import { car, actions } from '../core/car.js';
             <PedalControl label="Accélérateur" kind="accel" />
           </div>
         </div>
-        <HandsFree />
+        <div class="media">
+          <Radio />
+          <HandsFree />
+        </div>
       </div>
     </div>
     <div class="side"><Phone /></div>
@@ -36,9 +40,9 @@ import { car, actions } from '../core/car.js';
 </template>
 
 <style scoped>
-.car { height: 100%; display: flex; gap: 16px; align-items: stretch; }
+.car { height: 100%; min-height: 700px; display: flex; gap: 16px; align-items: stretch; }
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
-.row { flex: 1; min-height: 0; display: grid; grid-template-columns: auto minmax(200px, 1fr) minmax(220px, 1fr); gap: 12px; align-items: stretch; }
+.row { flex: 1; min-height: 390px; display: grid; grid-template-columns: auto minmax(190px, 0.8fr) minmax(390px, 1.4fr); gap: 12px; align-items: stretch; }
 .left { display: flex; flex-direction: column; gap: 10px; }
 .left > :last-child { flex: 1; }
 .top { display: flex; gap: 12px; align-items: stretch; }
@@ -49,6 +53,23 @@ import { car, actions } from '../core/car.js';
 .refills button:disabled { opacity: 0.4; cursor: default; }
 .controls { display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; }
 .pedals { display: flex; gap: 14px; align-items: flex-end; }
-.side { flex: none; height: 100%; }
-@media (max-width: 1100px) { .row { grid-template-columns: 1fr 1fr; } }
+.media { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.media > :last-child { flex: 1; }
+.side { flex: none; width: clamp(220px, 20vw, 250px); }
+@media (max-width: 1250px) {
+  .car { height: auto; }
+  .row { grid-template-columns: minmax(220px, 0.9fr) minmax(200px, 1fr); }
+  .media { grid-column: 1 / -1; }
+}
+@media (max-width: 1050px) {
+  .top { flex-direction: column; }
+}
+@media (max-width: 700px) {
+  .car { flex-direction: column; }
+  .side { width: min(100%, 300px); height: 650px; align-self: center; }
+}
+@media (max-width: 500px) {
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .media { grid-column: auto; }
+}
 </style>

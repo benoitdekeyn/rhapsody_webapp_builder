@@ -14,11 +14,11 @@ const odo = computed(() => Math.floor(car.distanceKm.value).toString().padStart(
   <div class="cluster">
     <div class="zone fuel">
       <div class="dial"><Dial :value="car.fuel.value" :min="0" :max="50" :start="150" :sweep="240" :major="10" :minor="5" :label-every="2" :warn-below="car.fuelThreshold.value" accent="#ffb020" caption="" unit="L" :digits="1" /></div>
-      <Light label="CARBURANT" color="#ffb020" blink :on="car.fuelLow.value" />
+      <Light label="CARBURANT" color="#ffb020" :on="car.fuelLow.value" />
     </div>
 
     <div class="zone speed">
-      <div class="dial"><Dial :value="car.speed.value" :min="0" :max="scale" :major="20" :minor="10" :accent="car.limiterExceeded.value ? '#ff4d4d' : '#3ee0ff'" caption="Vitesse" unit="km/h" /></div>
+      <div class="dial"><Dial :value="car.speed.value" :min="0" :max="scale" :major="20" :minor="10" :accent="car.limiterExceeded.value ? '#ff4d4d' : '#3ee0ff'" :marker="car.mode.value === 'manual' ? null : car.setpoint.value" :marker-color="car.mode.value === 'cruise' ? '#3ecf8e' : '#ffb020'" :marker-title="`Consigne : ${car.setpoint.value} km/h`" caption="Vitesse" unit="km/h" /></div>
     </div>
 
     <div class="zone info">
@@ -32,7 +32,7 @@ const odo = computed(() => Math.floor(car.distanceKm.value).toString().padStart(
 
     <div class="zone battery">
       <BatteryGauge :value="car.battery.value" :warn-below="car.batteryThreshold.value" />
-      <Light label="BATTERIE" color="#ff4d4d" blink :on="car.batteryLow.value" />
+      <Light label="BATTERIE" color="#ff4d4d" :on="car.batteryLow.value" />
     </div>
   </div>
 </template>
@@ -59,5 +59,9 @@ const odo = computed(() => Math.floor(car.distanceKm.value).toString().padStart(
 .zone button.big { padding: 9px 14px; font-size: 13px; font-weight: 600; }
 .zone button:hover:not(:disabled) { border-color: #3ecf8e; }
 .zone button:disabled { opacity: 0.4; cursor: default; }
+@media (max-width: 500px) {
+  .cluster { gap: 8px; padding: 10px; flex-wrap: wrap; }
+  .zone.speed .dial { width: min(45vw, 200px); }
+}
 </style>
 

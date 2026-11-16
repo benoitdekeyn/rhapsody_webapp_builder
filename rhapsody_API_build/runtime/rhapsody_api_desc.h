@@ -48,6 +48,7 @@ struct GeneratedApi {
     const char* customRoute; // its URL prefix (e.g. "/custom")
     const char* token;      // empty: no authentication
     bool cors;
+    bool useExeDir;
 };
 
 const GeneratedApi& generatedApi();

@@ -14,7 +14,7 @@ const active = computed(() => car.mode.value !== 'manual');
     <div class="stalk">
       <button class="mode cruise" :class="{ on: car.mode.value === 'cruise' }" :disabled="!car.online.value" @click="actions.fire('cruise')"><b>RÉGULATEUR</b><small>CRUISE</small></button>
       <button class="mode limiter" :class="{ on: car.mode.value === 'limiter' }" :disabled="!car.online.value" @click="actions.fire('limiter')"><b>LIMITEUR</b><small>LIMIT</small></button>
-      <div class="over-light"><Light label="DÉPASSEMENT" color="#ff4d4d" blink :on="car.limiterExceeded.value" /></div>
+      <div class="over-light"><Light label="DÉPASSEMENT" color="#ff4d4d" :on="car.limiterExceeded.value" /></div>
     </div>
 
     <div class="display" :class="[car.mode.value, { over: car.limiterExceeded.value }]">
@@ -46,8 +46,7 @@ const active = computed(() => car.mode.value !== 'manual');
 .display { text-align: center; padding: 8px; border-radius: 12px; background: #070a10; border: 1px solid #1d2638; color: #7f90ad; }
 .display.cruise { color: #3ecf8e; }
 .display.limiter { color: #ffb020; }
-.display.over { color: #ff4d4d; animation: pulse 0.8s infinite; }
-@keyframes pulse { 50% { background: #2a0d0d; } }
+.display.over { color: #ff4d4d; background: #2a0d0d; }
 .lbl { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.8; }
 .big { font: 700 32px 'Segoe UI', system-ui, sans-serif; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .big small { font-size: 11px; margin-left: 4px; opacity: 0.7; }

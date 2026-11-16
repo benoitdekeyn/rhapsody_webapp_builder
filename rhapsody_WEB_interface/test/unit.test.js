@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { parseJsonc } from '../src/core/jsonc.js';
-import { applyMessage } from '../src/core/api-client.js';
+import { SimApi, applyMessage } from '../src/core/api-client.js';
 import { mergeSettings, resolveSettings } from '../src/core/settings.js';
 import { resolveInstanceId, findStateKey, validateMap } from '../src/core/resolve.js';
 import apiMap from '../api-map.jsonc';
+import siteConfig from '../site-override.cjs';
+import { valueFromDialPoint } from '../src/core/dial.js';
 
 const schema = {
   classes: [{ name: '_SysVehicule', attributes: [{ name: 'speed', kind: 'int', writable: true }, { name: 'accelPedal', kind: 'float', writable: true }] }],
@@ -16,6 +18,29 @@ describe('jsonc', () => {
   });
 });
 
+describe('site configuration', () => {
+  it('uses the same browser address and site settings for dev and build', () => {
+    const cfg = { api: { host: '0.0.0.0', port: 9000, token: 'abc' }, site: { title: 'Cockpit', theme: 'light' } };
+    expect(siteConfig.siteOverride(cfg)).toEqual({
+      title: 'Cockpit',
+      api: { url: 'http://localhost:9000', token: 'abc', reconnectMs: 1000 },
+      ui: { theme: 'light', showDebug: false },
+    });
+  });
+});
+
+describe('réglage du compteur', () => {
+  it('convertit la position en vitesse et limite les positions hors de l’arc', () => {
+    const speed = (x, y) => valueFromDialPoint(x, y, 0, 130, 135, 270);
+    expect(speed(-1, 1)).toBe(0);
+    expect(speed(0, -1)).toBe(65);
+    expect(speed(1, 1)).toBe(130);
+    expect(speed(-1, 5)).toBe(0);
+    expect(speed(1, 5)).toBe(130);
+    expect(speed(0, 0)).toBeNull();
+  });
+});
+
 describe('applyMessage', () => {
   it('snapshot puis delta', () => {
     const m = { state: {}, instances: [] };
@@ -25,6 +50,24 @@ describe('applyMessage', () => {
     expect(m.state.B.y).toBe(3);
     applyMessage(m, { type: 'delta', added: [], removed: ['B'], changes: {} });
     expect(m.state.B).toBeUndefined();
+  });
+});
+
+describe('SimApi', () => {
+  it('rejette une requête en attente quand la connexion est fermée', async () => {
+    const api = new SimApi({ url: 'http://localhost' });
+    api.connected = true;
+    api.ws = { send() {}, close() {} };
+    const request = api.set('_SysVehicule', 'speed', 1);
+    api.close();
+    await expect(request).rejects.toThrow('connection closed');
+  });
+  it("rejette immédiatement si l'envoi WebSocket échoue", async () => {
+    const api = new SimApi({ url: 'http://localhost' });
+    api.connected = true;
+    api.ws = { send() { throw new Error('send failed'); } };
+    await expect(api.set('_SysVehicule', 'speed', 1)).rejects.toThrow('send failed');
+    expect(api._pending.size).toBe(0);
   });
 });
 

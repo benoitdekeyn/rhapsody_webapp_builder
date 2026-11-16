@@ -18,7 +18,7 @@ const dragValue = ref(0);
 let lastSent = 0;
 
 const remote = computed(() => (props.kind === 'brake' ? car.brake.value : car.accel.value));
-const shown = computed(() => (dragging.value ? dragValue.value : remote.value));
+const shown = computed(() => remote.value);
 const top = computed(() => (Math.min(MAX, Math.max(0, shown.value)) / MAX) * (TRACK - PAD));
 
 function valueAt(e) {

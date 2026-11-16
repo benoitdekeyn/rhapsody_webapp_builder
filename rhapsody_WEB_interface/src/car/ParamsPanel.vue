@@ -2,6 +2,7 @@
 // "Paramètres" menu: initial values of the model, written straight to the engine (see "parameters" in api-map.jsonc).
 import map from '../../api-map.jsonc';
 import { car, attributes, actions } from '../core/car.js';
+import { store } from '../core/store.js';
 
 defineEmits(['close']);
 
@@ -10,10 +11,15 @@ const known = (item) => !!attributes[item.key];
 const isText = (item) => attributes[item.key]?.type === 'string';
 
 function commit(item, e) {
-  const raw = e.target.value;
-  if (isText(item)) return actions.set(item.key, raw);
-  const v = Number(raw);
-  if (raw !== '' && Number.isFinite(v)) actions.set(item.key, v);
+  const input = e.target;
+  const raw = input.value;
+  const value = isText(item) ? raw : Number(raw);
+  if (!isText(item) && (raw === '' || !Number.isFinite(value))) {
+    store.error = `Valeur invalide pour ${item.label}`;
+  } else {
+    actions.set(item.key, value);
+  }
+  input.value = car[item.key].value;
 }
 </script>
 
