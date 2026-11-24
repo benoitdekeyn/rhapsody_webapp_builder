@@ -2,8 +2,8 @@
 //
 //   const sim = new SimClient();            // same origin as the page, or new SimClient({ url: "http://localhost:8080" })
 //   sim.onState((state, changes) => ...);   // state = { instanceId: { attr: value } }, changes = last delta (or null)
-//   sim.set("_SysVehicule", "speed", 42);   // sim.set(inst, attr, value, index?)
-//   sim.sendEvent("ev_demarrer");           // sim.sendEvent("ev_tentative_mdp", { mdp: "1234" }, instance?)
+//   sim.set("MaClasse", "vitesse", 42);     // sim.set(inst, attr, value, index?)
+//   sim.sendEvent("ev_demarrer");           // sim.sendEvent("ev_action", { param: "valeur" }, instance?)
 //   sim.reset();                            // restarts the simulation from the beginning
 //   await sim.schema;                       // API description (classes / attributes / events)
 class SimClient {

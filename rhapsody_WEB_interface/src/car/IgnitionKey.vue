@@ -53,15 +53,15 @@ function keyClick() {
       </g>
     </svg>
     <div class="side">
-      <Light label="MOTEUR" color="#3ecf8e" :on="car.engine.value" />
       <button class="start" :class="{ active: cranking }" :disabled="!car.online.value" @pointerdown.prevent="crankDown" @pointerup="crankUp" @pointercancel="crankUp" @lostpointercapture="crankUp">Démarrer</button>
+      <Light label="MOTEUR" color="#3ecf8e" :on="car.engine.value" />
     </div>
   </div>
 </template>
 
 <style scoped>
-.ignition { display: flex; flex-direction: row; align-items: center; gap: 14px; user-select: none; }
-.side { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.ignition { display: flex; flex-direction: column; align-items: center; gap: 8px; user-select: none; }
+.side { display: flex; align-items: center; gap: 8px; }
 .ignition.disabled { opacity: 0.5; }
 .lock { width: 130px; cursor: pointer; filter: drop-shadow(0 6px 10px #0008); }
 .key { transform-origin: 80px 72px; transition: transform 0.12s ease-out; }

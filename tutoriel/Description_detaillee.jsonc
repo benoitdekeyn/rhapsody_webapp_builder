@@ -1,0 +1,78 @@
+// Configuration MarkDownAble du document Description_Detaillee.md
+{
+  "global": {
+    "title": "Description détaillée — Chaîne de construction et API Rhapsody",
+    "icon": null,
+    "language": "fr",
+    "fontScale": 100,
+    "zoom": 100,
+    "fonts": {
+      "headings": null,
+      "body": "-apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+      "code": "ui-monospace, 'Cascadia Code', Consolas, 'SFMono-Regular', monospace",
+      "math": null
+    }
+  },
+
+  "html": {
+    "name": "index",
+    "theme": "auto",
+    "embedImages": false,
+    "tocOpenLevel": 2,
+    "sidebarWidth": 320,
+    "sidebarMinWidth": 200,
+    "sidebarMaxWidth": 650,
+    "contentWidthPercent": 90
+  },
+
+  "numbering": {
+    "levels": {
+      "1": { "style": "ignore" },
+      "2": { "style": "decimal", "separator": "." },
+      "3": { "style": "decimal", "separator": ".", "cumulative": true },
+      "4": { "style": "ignore" },
+      "5": { "style": "ignore" },
+      "6": { "style": "ignore" }
+    }
+  },
+
+  "toc": {
+    "range": [2, 3],
+    "collapsible": true,
+    "summary": "Table des matières",
+    "open": false,
+    "levels": {
+      "2": { "symbol": "•", "indent": 0, "bold": true,  "italic": false, "size": null, "collapsible": false },
+      "3": { "symbol": "◦", "indent": 4, "bold": false, "italic": false, "size": null, "collapsible": false }
+    }
+  },
+
+  "pdf": {
+    "name": "Description_Detaillee",
+    "theme": "light",
+    "format": "A4",
+    "landscape": false,
+    "zoom": 105,
+    "fontScale": 100,
+    "fonts": { "headings": null, "body": null, "code": null, "math": null },
+    "margins": { "top": "18mm", "right": "16mm", "bottom": "18mm", "left": "16mm" },
+    "pageBreakBefore": [],
+    "hideToc": false,
+    "keepSectionsTogether": true,
+    "keepBlocksTogether": true,
+    "browser": null,
+    "header": { "left": "{title}", "right": "{h2}" },
+    "footer": { "center": "{page} / {pages}" }
+  },
+
+  "style": {
+    "pageTheme": { "light": "default", "dark": "default" },
+    "pagePalettes": {},
+    "codeTheme": { "mode": "follow" },
+    "codeLanguage": true,
+    "highlight": { "light": "default", "dark": "default" },
+    "mermaidTheme": "auto",
+    "mermaid": { "layout": "dagre", "direction": null, "zoom": 100 },
+    "customCss": "custom.css"
+  }
+}

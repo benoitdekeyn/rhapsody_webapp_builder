@@ -159,7 +159,7 @@ const toggleCharging = () => actions.set('charging', !car.charging.value);
 </template>
 
 <style scoped>
-.holder { height: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.holder { height: 650px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .external-simulation { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid var(--border); border-radius: 14px; background: var(--panel); }
 .simulation-title { display: block; margin-bottom: 6px; color: #8d9db7; font: 700 9px system-ui, sans-serif; letter-spacing: 1.2px; text-transform: uppercase; }
 .simulation-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }

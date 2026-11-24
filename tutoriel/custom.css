@@ -1,0 +1,60 @@
+/* Mise en page déterministe et propre des tableaux (HTML et PDF) */
+.markdown-body table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.markdown-body th,
+.markdown-body td {
+  vertical-align: top;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* 1. Glossaires (3 colonnes : N° | Terme | Explication) */
+.markdown-body table:has(td:first-child > a[id^="g-"]) th:nth-child(1),
+.markdown-body table:has(td:first-child > a[id^="g-"]) td:nth-child(1) {
+  width: 7%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.markdown-body table:has(td:first-child > a[id^="g-"]) th:nth-child(2),
+.markdown-body table:has(td:first-child > a[id^="g-"]) td:nth-child(2) {
+  width: 23%;
+}
+
+.markdown-body table:has(td:first-child > a[id^="g-"]) th:nth-child(3),
+.markdown-body table:has(td:first-child > a[id^="g-"]) td:nth-child(3) {
+  width: 70%;
+}
+
+/* 2. Tableaux à 2 colonnes commençant par une commande / action (Commande | Rôle) */
+.markdown-body table:has(td:first-child > code:only-child):not(:has(th:nth-child(3))) th:nth-child(1),
+.markdown-body table:has(td:first-child > code:only-child):not(:has(th:nth-child(3))) td:nth-child(1) {
+  width: 38%;
+}
+
+.markdown-body table:has(td:first-child > code:only-child):not(:has(th:nth-child(3))) th:nth-child(2),
+.markdown-body table:has(td:first-child > code:only-child):not(:has(th:nth-child(3))) td:nth-child(2) {
+  width: 62%;
+}
+
+/* 3. Tableaux à 3 colonnes (hors glossaire) : équilibrés */
+.markdown-body table:not(:has(td:first-child > a[id^="g-"])):has(th:nth-child(3)) th:nth-child(1),
+.markdown-body table:not(:has(td:first-child > a[id^="g-"])):has(th:nth-child(3)) td:nth-child(1) {
+  width: 28%;
+}
+
+.markdown-body table:not(:has(td:first-child > a[id^="g-"])):has(th:nth-child(3)) th:nth-child(2),
+.markdown-body table:not(:has(td:first-child > a[id^="g-"])):has(th:nth-child(3)) td:nth-child(2) {
+  width: 28%;
+}
+
+.markdown-body table:not(:has(td:first-child > a[id^="g-"])):has(th:nth-child(3)) th:nth-child(3),
+.markdown-body table:not(:has(td:first-child > a[id^="g-"])):has(th:nth-child(3)) td:nth-child(3) {
+  width: 44%;
+}

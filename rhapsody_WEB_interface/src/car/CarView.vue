@@ -40,24 +40,21 @@ import { car, actions } from '../core/car.js';
 </template>
 
 <style scoped>
-.car { height: 100%; min-height: 700px; display: flex; gap: 16px; align-items: stretch; }
+.car { display: flex; gap: 16px; align-items: flex-start; }
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
-.row { flex: 1; min-height: 390px; display: grid; grid-template-columns: auto minmax(190px, 0.8fr) minmax(390px, 1.4fr); gap: 12px; align-items: stretch; }
+.row { display: grid; grid-template-columns: auto minmax(190px, 0.8fr) minmax(390px, 1.4fr); gap: 12px; align-items: start; }
 .left { display: flex; flex-direction: column; gap: 10px; }
-.left > :last-child { flex: 1; }
 .top { display: flex; gap: 12px; align-items: stretch; }
 .grow { flex: 1; min-width: 0; }
 .refills { display: flex; gap: 8px; }
 .refills button { flex: 1; padding: 10px 14px; font-size: 13px; font-weight: 600; background: #151c28; color: #cfe0ff; border: 1px solid #2a354a; border-radius: 10px; cursor: pointer; }
 .refills button:hover:not(:disabled) { border-color: #3ecf8e; }
 .refills button:disabled { opacity: 0.4; cursor: default; }
-.controls { display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; }
+.controls { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; }
 .pedals { display: flex; gap: 14px; align-items: flex-end; }
 .media { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.media > :last-child { flex: 1; }
 .side { flex: none; width: clamp(220px, 20vw, 250px); }
 @media (max-width: 1250px) {
-  .car { height: auto; }
   .row { grid-template-columns: minmax(220px, 0.9fr) minmax(200px, 1fr); }
   .media { grid-column: 1 / -1; }
 }
@@ -66,7 +63,7 @@ import { car, actions } from '../core/car.js';
 }
 @media (max-width: 700px) {
   .car { flex-direction: column; }
-  .side { width: min(100%, 300px); height: 650px; align-self: center; }
+  .side { width: min(100%, 300px); align-self: center; }
 }
 @media (max-width: 500px) {
   .row { grid-template-columns: minmax(0, 1fr); }

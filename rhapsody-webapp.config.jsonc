@@ -1,53 +1,67 @@
 {
-  // Settings shared by rhapsody_API_build (executable + API) and rhapsody_WEB_interface (site).
-  // Paths are relative to this file.
+  // ============================================================================
+  // CONFIGURATION COMMUNE (rhapsody_API_build + rhapsody_WEB_interface)
+  // ============================================================================
+  // Les valeurs ci-dessous correspondent à un EXEMPLE CONCRET (mon projet
+  // personnel de simulateur véhicule E4SE). Pour utiliser cet outil sur VOTRE
+  // projet Rhapsody, adaptez simplement les champs marqués [À ADAPTER].
+  // Tous les chemins relatifs sont résolus par rapport à ce fichier.
 
-  // Project root: generated code and assets are resolved relative to this directory.
+  // [À ADAPTER] Dossier racine de votre projet Rhapsody (celui qui contient le .rpy / .rpyx).
+  // Les chemins "codeDir" et "assets.from" sont résolus par rapport à ce dossier.
   "projectDir": "../E4SE_TD_TP/systemes_evenements_discrets/Rhapsody_v9.0.2/Projet_TABDK_E4SE",
 
-  // Generated code relative to projectDir. Empty: use the API configuration.
+  // [À ADAPTER] Sous-dossier contenant le code C++ généré par Rhapsody (.h, .cpp, .mak).
+  // Si laissé vide (""), la valeur de rhapsody_API_build/rhapsody-api.config.jsonc est utilisée.
   "codeDir": "CodesGeneres/ModeAnimation",
 
-  // Override an attribute's constructor initializer in the executable only.
+  // [À ADAPTER — optionnel] Surcharge de valeurs d'initialisation d'attributs dans les
+  // constructeurs C++, UNIQUEMENT dans la copie compilée (votre projet Rhapsody n'est jamais modifié).
+  // Exemple ici : le modèle utilise un chemin absolu/relatif vers les sons dans Rhapsody ;
+  // pour l'exécutable autonome, on le remplace par "sons\\" (dossier copié à côté de l'exe).
+  // Laissez [] si votre projet n'en a pas besoin.
   "attributeOverrides": [
     { "class": "_SysVehicule", "attribute": "chemin_sons", "type": "OMString", "value": "sons\\" }
   ],
 
-  // Address the website reads the API at. The executable is built to listen on it.
+  // Adresse réseau du serveur HTTP + WebSocket embarqué dans l'exécutable.
+  // L'interface web se connectera automatiquement à cette même adresse.
   "api": {
-    "host": "127.0.0.1",
-    "port": 8080,
-    "token": ""
+    "host": "127.0.0.1",   // "127.0.0.1" = machine locale uniquement ; "0.0.0.0" = accessible sur le réseau local
+    "port": 8080,          // Port TCP d'écoute (ex. http://127.0.0.1:8080)
+    "token": ""            // Optionnel : si non vide, exige ?token=... ou Authorization: Bearer ...
   },
 
-  // URL prefixes served by the executable: http://<host>:<port><route>/
+  // Préfixes d'URL servis par l'exécutable : http://<host>:<port><route>/
   "routes": {
-    "custom": "/custom",   // the website (custom_web_interface)
-    "simple": "/api"       // simple page listing every attribute / event
+    "custom": "/custom",   // Votre site web personnalisé (custom_web_interface/)
+    "simple": "/api"       // Page web générique intégrée listant tous les attributs et événements
   },
 
-  // Folder receiving the final executable with everything it needs (web, schemas, assets)
+  // Dossier final qui reçoit l'exécutable prêt à l'emploi + interfaces web + assets.
   "outputDir": "./application",
+  // Nom du fichier exécutable généré (doit se terminer par .exe).
   "exeName": "simulateur.exe",
 
-  // Defaults of rhapsody_WEB_interface/site.config.jsonc, overridden at build time
+  // [Exemple interface perso] Réglages injectés dans rhapsody_WEB_interface au build et en dev.
   "site": {
     "title": "Simulateur véhicule",
-    "reconnectMs": 1000,
+    "reconnectMs": 1000,   // Délai de reconnexion WebSocket en millisecondes
     "theme": "dark",       // "dark" | "light"
     "showDebug": false
   },
 
+  // Lance automatiquement un test rapide de l'exécutable (santé, schéma, état, WebSocket) en fin de build.
   "smokeTest": true,
 
-  // Sub-projects
+  // Emplacements des deux sous-projets (en principe, rien à modifier ici).
   "apiBuild": {
     "dir": "./rhapsody_API_build",
     "config": "rhapsody-api.config.jsonc"
   },
   "webInterface": {
     "dir": "./rhapsody_WEB_interface",
-    "dist": "dist",                                          // build output, relative to dir
-    "target": "./rhapsody_API_build/custom_web_interface"    // receives the content of dist (+ site.json)
+    "dist": "dist",                                          // Dossier de sortie du build Vue, relatif à dir
+    "target": "./rhapsody_API_build/custom_web_interface"    // Dossier où le site compilé est copié pour l'exe
   }
 }

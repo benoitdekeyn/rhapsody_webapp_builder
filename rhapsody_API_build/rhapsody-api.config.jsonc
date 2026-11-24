@@ -1,88 +1,113 @@
 {
-  // Project root; codeDir and assets.from are relative to this folder.
+  // ============================================================================
+  // CONFIGURATION DU GÉNÉRATEUR D'EXÉCUTABLE & API (rhapsody_API_build)
+  // ============================================================================
+  // Ce fichier pilote uniquement la compilation du code C++ Rhapsody en exécutable
+  // Windows autonome doté d'une API REST + WebSocket.
+  //
+  // Les chemins ci-dessous sont un EXEMPLE CONCRET (projet personnel véhicule E4SE).
+  // Pour votre propre projet Rhapsody, adaptez les champs marqués [À ADAPTER].
+  // Note : si vous lancez le build depuis la racine (npm run build), les clés
+  // "projectDir", "codeDir", "attributeOverrides", "api" et "routes" de
+  // rhapsody-webapp.config.jsonc surchargent celles-ci.
+
+  // [À ADAPTER] Dossier racine de votre projet Rhapsody (optionnel ; sert de base à codeDir et assets.from).
   "projectDir": "../../E4SE_TD_TP/systemes_evenements_discrets/Rhapsody_v9.0.2/Projet_TABDK_E4SE",
+
+  // [À ADAPTER] Dossier contenant le code C++ généré par Rhapsody (.h, .cpp, .mak).
   "codeDir": "CodesGeneres/ModeAnimation",
 
-  // Executable to produce (relative to this file)
+  // Chemin et nom de l'exécutable produit (relatif à ce fichier).
   "exe": "./dist/simulateur.exe",
 
+  // Export des schémas JSON décrivant l'API (classes, attributs, événements).
   "schema": {
-    // Folder of the timestamped schemas (default: "schemas" next to the exe)
+    // Dossier des schémas horodatés (si vide : dossier "schemas" à côté de l'exécutable).
     "dir": "./dist/schemas",
-    // Files are named <baseName>.<YYYYMMDD-HHMMSS>.json and never overwritten
+    // Fichiers créés sous la forme <baseName>.<AAAAMMJJ-HHMMSS>.json (jamais écrasés).
     "baseName": "api_schema"
   },
 
+  // Paramètres du serveur HTTP + WebSocket embarqué dans l'exécutable.
   "server": {
-    "host": "127.0.0.1",   // "0.0.0.0" to expose on the network
-    "port": 8080,          // 0 disables the server
-    "pushRateHz": 20,      // max rate of WebSocket deltas
-    "cors": true,
-    "token": ""            // non-empty: required as ?token= or "Authorization: Bearer"
+    "host": "127.0.0.1",   // "127.0.0.1" = local uniquement ; "0.0.0.0" = réseau local
+    "port": 8080,          // 0 désactive complètement le serveur API
+    "pushRateHz": 20,      // Fréquence maximale d'envoi des mises à jour WebSocket (en Hz)
+    "cors": true,          // Autorise les requêtes depuis n'importe quelle page web (même en file://)
+    "token": ""            // Si non vide : clé exigée via ?token=... ou en-tête "Authorization: Bearer ..."
   },
 
+  // Page web générique intégrée : liste automatiquement tous les attributs et événements du modèle.
   "web": {
-    "source": "./api_web_interface",  // simple page listing all attributes/events, copied next to the exe
-    "dir": "api_web_interface",
-    "route": "/api"                   // served at <host>:<port>/api/ (REST /api/* keeps working)
+    "source": "./api_web_interface",  // Dossier source (mettre "" pour désactiver)
+    "dir": "api_web_interface",       // Nom du dossier copié à côté de l'exécutable
+    "route": "/api"                   // Servi sur http://<host>:<port>/api/ (les routes REST /api/* restent actives)
   },
 
-  // Your own website (html, css, js, media, sub-folders...). Put it in this folder; the optional
-  // site.json inside it ({ "api": { "host", "port", "token" } }) defines the API address the site reads:
-  // the executable is built to listen there. site.json itself is not copied to the executable.
+  // Votre propre site web (HTML, CSS, JS, images...). Placez vos fichiers dans "source" :
+  // l'exécutable les copiera et les servira sur "route".
+  // Un fichier optionnel "site.json" ({ "api": { "host", "port", "token" } }) dans "source"
+  // aligne automatiquement l'adresse d'écoute de l'exécutable sur celle attendue par le site.
   "customWeb": {
     "source": "./custom_web_interface",
     "dir": "custom_web_interface",
-    "route": "/custom",               // served at <host>:<port>/custom/ ; "/" is redirected to it
+    "route": "/custom",               // Servi sur http://<host>:<port>/custom/ ; "/" y redirige automatiquement
     "siteConfig": "site.json"
   },
 
-  // Extra folders receiving a full copy of the exe folder (exe, web UIs, schemas, assets)
+  // Dossiers supplémentaires recevant une copie complète du dossier de l'exécutable en fin de build.
   "copyTo": [],
 
-  // Internal members to hide from the API. "Class.attr", "attr" (any class), * and ? wildcards.
+  // [Optionnel] Éléments internes du modèle à masquer de l'API.
+  // Syntaxe acceptée : "MaClasse.monAttribut", "monAttribut" (toutes classes), jokers * et ?.
   "exclude": {
     "classes": [],
     "attributes": [],
     "events": []
   },
 
-  // Attributes exposed read-only
+  // [Optionnel] Attributs exposés en lecture seule (l'API refusera toute écriture dessus).
   "readOnly": [],
 
-  // Extra type aliases, e.g. { "MyInt": "int" }
+  // [Optionnel] Alias de types C++ personnalisés vers un type simple compris par l'API.
+  // Exemple : { "T_Vitesse": "float", "T_Etat": "int" }
   "typeMap": {},
 
-  // Optional constructor initializers overridden only in the working copy.
+  // [Optionnel] Surcharge d'initialisations d'attributs dans les constructeurs (copie de travail uniquement).
+  // Exemple : [{ "class": "MaClasse", "attribute": "dossier_sons", "type": "OMString", "value": "sons\\" }]
   "attributeOverrides": [],
 
-  // Copy the project's sounds folder next to the exe.
+  // [À ADAPTER — optionnel] Fichiers ou dossiers externes à copier à côté de l'exécutable.
+  // Exemple ici : le projet véhicule utilise un dossier "sons" pour jouer des fichiers .wav.
+  // Mettez [] si votre projet n'a pas de ressources externes à embarquer.
   "assets": [
     { "from": "sons", "to": "sons" }
   ],
 
+  // Options de compilation MSVC + Framework Rhapsody (détectés automatiquement dans la plupart des cas).
   "build": {
-    "workDir": "./build/work",
-    "buildType": "Debug",          // only Debug framework libs are installed here
-    "instrumentation": "None",     // "Animation" links the Rhapsody animation libs
-    "extraDefines": [],
-    "extraIncludes": [],
-    "extraLibs": [],
-    "extraCompilerFlags": [],
-    "extraLinkerFlags": [],
-    "excludeSources": [],
-    "vcvarsPath": "",              // auto-detected with vswhere
-    "rhapsodyRoot": "",            // default: OMROOT of the .mak
-    "frameworkLibRoot": "",        // default: FRAMEWORK_LIB_ROOT of the .mak
-    "libPrefix": "",
-    "keepWorkDir": true,
-    "smokeTest": true,
-    "smokeTestTimeoutSec": 20
+    "workDir": "./build/work",     // Copie de travail où le code C++ est instrumenté (le projet source n'est jamais touché)
+    "buildType": "Debug",          // "Debug" ou "Release" (selon les bibliothèques Rhapsody installées sur le PC)
+    "instrumentation": "None",     // "None" (autonome) ou "Animation" (lie les libs d'animation Rhapsody)
+    "extraDefines": [],            // Macros C++ supplémentaires (-D...)
+    "extraIncludes": [],           // Dossiers d'en-têtes (.h) supplémentaires
+    "extraLibs": [],               // Bibliothèques .lib supplémentaires
+    "extraCompilerFlags": [],      // Options cl.exe supplémentaires
+    "extraLinkerFlags": [],        // Options link.exe supplémentaires
+    "excludeSources": [],          // Fichiers .cpp du dossier généré à exclure de la compilation
+    "vcvarsPath": "",              // Chemin vers vcvars64.bat (vide = détection automatique via Visual Studio)
+    "rhapsodyRoot": "",            // Chemin OMROOT (vide = lu automatiquement depuis le .mak de Rhapsody)
+    "frameworkLibRoot": "",        // Chemin FRAMEWORK_LIB_ROOT (vide = lu depuis le .mak)
+    "libPrefix": "",               // Préfixe des libs Rhapsody (vide = lu depuis le .mak)
+    "keepWorkDir": true,           // Conserve build/work après compilation (utile pour déboguer)
+    "smokeTest": true,             // Exécute un test de fumée automatique après compilation
+    "smokeTestTimeoutSec": 20      // Délai maximal du test de fumée (en secondes)
   },
 
+  // Options d'exécution de l'exécutable généré.
   "run": {
-    "cwd": "",                     // default: folder of the exe
-    "args": [],
-    "useExeDir": true              // also use the exe folder when launched directly
+    "cwd": "",                     // Répertoire courant au lancement via CLI (vide = dossier de l'exe)
+    "args": [],                    // Arguments passés en ligne de commande
+    "useExeDir": true              // Force le dossier de l'exe comme répertoire courant (recommandé si vous utilisez "assets")
   }
 }

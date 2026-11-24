@@ -8,6 +8,7 @@
     "build": "node src/cli.js build",
     "schema": "node src/cli.js schema",
     "run": "node src/cli.js run",
+    "clean": "node src/cli.js clean",
     "test": "node --test test/unit.test.js test/e2e.test.js"
   },
   "engines": { "node": ">=22" }

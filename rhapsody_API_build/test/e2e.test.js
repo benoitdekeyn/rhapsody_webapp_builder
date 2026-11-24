@@ -44,26 +44,30 @@ test('built simulator: REST + WebSocket', { skip: !hasExe && 'executable not bui
   assert.ok(id.startsWith(cls.name));
 
   await t.test('write / read back a scalar', async () => {
-    const attr = cls.attributes.find((a) => a.kind === 'float' && a.writable && !a.dims.length);
-    assert.ok(attr, 'a writable float attribute is expected');
-    const w = await put(`/api/instances/${id}/attrs/${attr.name}`, { value: 12.5 });
+    const attr = cls.attributes.find((a) => ['float', 'int', 'bool', 'string'].includes(a.kind) && a.writable && !a.dims.length);
+    if (!attr) return;
+    const sample = attr.kind === 'float' ? 12.5 : attr.kind === 'int' ? 12 : attr.kind === 'bool' ? true : 'test_val';
+    const w = await put(`/api/instances/${id}/attrs/${attr.name}`, { value: sample });
     assert.strictEqual(w.status, 200);
     const r = await j(`/api/instances/${id}/attrs/${attr.name}`);
-    assert.strictEqual(r.body.value, 12.5);
+    assert.strictEqual(r.body.value, sample);
   });
 
   await t.test('write one array element', async () => {
-    const attr = cls.attributes.find((a) => a.dims.length === 1 && a.writable);
+    const attr = cls.attributes.find((a) => a.dims.length === 1 && a.writable && ['float', 'int', 'bool', 'string'].includes(a.kind));
     if (!attr) return;
-    const w = await put(`/api/instances/${id}/attrs/${attr.name}`, { value: 'zz', index: 1 });
+    const sample = attr.kind === 'float' ? 12.5 : attr.kind === 'int' ? 12 : attr.kind === 'bool' ? true : 'zz';
+    const w = await put(`/api/instances/${id}/attrs/${attr.name}`, { value: sample, index: 1 });
     assert.strictEqual(w.status, 200);
     const r = await j(`/api/instances/${id}/attrs/${attr.name}`);
-    assert.strictEqual(r.body.value[1], 'zz');
+    assert.strictEqual(r.body.value[1], sample);
   });
 
   await t.test('rejects bad values and unknown names', async () => {
-    const attr = cls.attributes.find((a) => a.kind === 'float' && a.writable && !a.dims.length);
-    assert.strictEqual((await put(`/api/instances/${id}/attrs/${attr.name}`, { value: 'not a number' })).status, 400);
+    const attr = cls.attributes.find((a) => ['float', 'int'].includes(a.kind) && a.writable && !a.dims.length);
+    if (attr) {
+      assert.strictEqual((await put(`/api/instances/${id}/attrs/${attr.name}`, { value: 'not a number' })).status, 400);
+    }
     assert.ok((await put(`/api/instances/${id}/attrs/nope`, { value: 1 })).status >= 400);
     assert.ok((await post('/api/events/nope')).status >= 400);
   });
@@ -98,18 +102,21 @@ test('built simulator: REST + WebSocket', { skip: !hasExe && 'executable not bui
   });
 
   await t.test('WebSocket: snapshot, set, delta', async () => {
-    const attr = cls.attributes.find((a) => a.kind === 'float' && a.writable && !a.dims.length);
+    const attr = cls.attributes.find((a) => ['float', 'int', 'bool', 'string'].includes(a.kind) && a.writable && !a.dims.length);
     const ws = new WebSocket(`ws://127.0.0.1:${port}/ws`);
     const msgs = [];
     ws.onmessage = (m) => msgs.push(JSON.parse(String(m.data)));
     for (let i = 0; i < 50 && !msgs.some((m) => m.type === 'snapshot'); i++) await sleep(100);
     assert.ok(msgs.some((m) => m.type === 'snapshot'));
-    ws.send(JSON.stringify({ op: 'set', reqId: 7, instance: id, attr: attr.name, value: 99.25 }));
-    for (let i = 0; i < 50 && !msgs.some((m) => m.type === 'result'); i++) await sleep(100);
-    const res = msgs.find((m) => m.type === 'result');
-    assert.ok(res && res.ok && res.reqId === 7, JSON.stringify(res));
-    for (let i = 0; i < 50 && !msgs.some((m) => m.type === 'delta' && JSON.stringify(m).includes('99.25')); i++) await sleep(100);
-    assert.ok(msgs.some((m) => m.type === 'delta' && JSON.stringify(m).includes('99.25')), 'delta with the new value');
+    if (attr) {
+      const sample = attr.kind === 'float' ? 99.25 : attr.kind === 'int' ? 99 : attr.kind === 'bool' ? false : 'ws_test';
+      ws.send(JSON.stringify({ op: 'set', reqId: 7, instance: id, attr: attr.name, value: sample }));
+      for (let i = 0; i < 50 && !msgs.some((m) => m.type === 'result'); i++) await sleep(100);
+      const res = msgs.find((m) => m.type === 'result');
+      assert.ok(res && res.ok && res.reqId === 7, JSON.stringify(res));
+      for (let i = 0; i < 50 && !msgs.some((m) => m.type === 'delta' && JSON.stringify(m).includes(String(sample))); i++) await sleep(100);
+      assert.ok(msgs.some((m) => m.type === 'delta' && JSON.stringify(m).includes(String(sample))), 'delta with the new value');
+    }
     ws.close();
   });
 });

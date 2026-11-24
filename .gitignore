@@ -1,2 +1,7 @@
-application/
+# Schémas horodatés accumulés à chaque build dans application/
+application/schemas/
+
+# Outil MarkDownAble cloné dans tutoriel/ (possède son propre dépôt Git)
+tutoriel/MarkDownAble/
+
 rhapsody_webapp_builder.code-workspace
