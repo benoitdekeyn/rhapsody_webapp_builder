@@ -402,8 +402,13 @@ li.task-item { list-style: none; }
 <main id="content"><article class="markdown-body">
 <h1 id="tutoriel--ajouter-une-interface-web-à-un-projet-rhapsody">Tutoriel — Ajouter une interface Web à un projet Rhapsody<a class="anchor" href="#tutoriel--ajouter-une-interface-web-à-un-projet-rhapsody" aria-label="Lien vers cette section">#</a></h1>
 <p>Ce guide pratique décrit, étape par étape, comment transformer un <strong>projet IBM Rhapsody</strong> en un <strong>exécutable Windows autonome</strong> pilotable depuis un navigateur Web — sans jamais modifier le modèle Rhapsody d'origine.</p>
+<p>Tous les fichiers et outils mentionnés dans ce document proviennent du dépôt GitHub <strong><a href="https://github.com/benoitdekeyn/rhapsody_webapp_builder" target="_blank" rel="noopener noreferrer">https://github.com/benoitdekeyn/rhapsody_webapp_builder</a></strong> :</p>
+<ul>
+<li><strong>Présentation générale du dépôt</strong> : <a href="https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/README.md" target="_blank" rel="noopener noreferrer">README.md</a></li>
+<li><strong>Récupérer le projet</strong> : <a href="https://github.com/benoitdekeyn/rhapsody_webapp_builder/archive/refs/heads/main.zip" target="_blank" rel="noopener noreferrer">Télécharger le ZIP</a> ou cloner via <code>git clone https://github.com/benoitdekeyn/rhapsody_webapp_builder.git</code></li>
+</ul>
 <blockquote>
-<p><strong>Pour comprendre le fonctionnement interne ou personnaliser finement l'outil</strong>, consulter le document compagnon <strong><code>Description_Detaillee</code></strong> (fourni au format HTML et PDF dans ce même dossier).</p>
+<p><strong>Pour comprendre le fonctionnement interne ou personnaliser finement l'outil</strong>, consulter le document compagnon <strong><a href="https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/tutoriel/Description_detaillee.md" target="_blank" rel="noopener noreferrer">Description_detaillee.md</a></strong> (également disponible en HTML et PDF dans le dossier <code>tutoriel/</code> du dépôt).</p>
 </blockquote>
 <!-- TOC -->
 <details><summary>Table des matières</summary>
@@ -552,6 +557,7 @@ L'outil <code>rhapsody_API_build</code> fonctionne sur <strong>n'importe quel pr
 <h2 id="3-essayer-lexemple-tout-de-suite-sans-rien-installer">3. Essayer l'exemple tout de suite (sans rien installer)<a class="anchor" href="#3-essayer-lexemple-tout-de-suite-sans-rien-installer" aria-label="Lien vers cette section">#</a></h2>
 <p>Pour découvrir le résultat final avant de commencer :</p>
 <ol>
+<li>Récupérer le dépôt depuis GitHub (<a href="https://github.com/benoitdekeyn/rhapsody_webapp_builder/archive/refs/heads/main.zip" target="_blank" rel="noopener noreferrer">télécharger le ZIP</a> et le décompresser, ou cloner <a href="https://github.com/benoitdekeyn/rhapsody_webapp_builder" target="_blank" rel="noopener noreferrer">le dépôt</a>).</li>
 <li>Ouvrir le dossier <code>application/</code> à la racine du dépôt.</li>
 <li>Double-cliquer sur <strong><code>simulateur.exe</code></strong>.</li>
 <li>Le navigateur s'ouvre sur <code>http://127.0.0.1:8080/custom/</code> (exemple personnel de cockpit véhicule).</li>
@@ -575,7 +581,7 @@ L'outil <code>rhapsody_API_build</code> fonctionne sur <strong>n'importe quel pr
 <h3 id="51-étape-1--générer-le-code-dans-rhapsody">5.1. Étape 1 — Générer le code dans Rhapsody<a class="anchor" href="#51-étape-1--générer-le-code-dans-rhapsody" aria-label="Lien vers cette section">#</a></h3>
 <p>Dans <strong>IBM Rhapsody</strong>, générer le code C++ du projet comme d'habitude (<em>Code → Generate / Make / Run</em>). Les fichiers <code>.h</code>, <code>.cpp</code> et <code>.mak</code> se trouvent dans le dossier <code>CodesGeneres/ModeAnimation</code> du projet.</p>
 <h3 id="52-étape-2--indiquer-le-projet-dans-la-configuration">5.2. Étape 2 — Indiquer le projet dans la configuration<a class="anchor" href="#52-étape-2--indiquer-le-projet-dans-la-configuration" aria-label="Lien vers cette section">#</a></h3>
-<p>Ouvrir le fichier <strong><code>rhapsody_API_build/rhapsody-api.config.jsonc</code></strong> (avec le Bloc-notes ou VS Code) et adapter les champs ci-dessous pour pointer vers le projet cible :</p>
+<p>Ouvrir le fichier <strong><a href="https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/rhapsody_API_build/rhapsody-api.config.jsonc" target="_blank" rel="noopener noreferrer"><code>rhapsody_API_build/rhapsody-api.config.jsonc</code></a></strong> (avec le Bloc-notes ou VS Code) et adapter les champs ci-dessous pour pointer vers le projet cible :</p>
 <div class="code-block"><div class="code-frame" data-lang="jsonc" data-filename="rhapsody-api.config.jsonc"><div class="code-bar"><div class="code-actions"><button class="copy-btn" type="button" title="Copier le code" aria-label="Copier le code"></button><button class="expand-btn" type="button" title="Agrandir le code" aria-label="Agrandir le code"></button><button class="download-btn" type="button" title="Télécharger le code" aria-label="Télécharger le code"></button></div><span class="code-lang custom" title="rhapsody_API_build/rhapsody-api.config.jsonc">rhapsody_API_build/rhapsody-api.config.jsonc</span></div><pre><code class="hljs language-jsonc"><span class="hljs-punctuation">{</span>
   <span class="hljs-comment">// Remplacer par le dossier principal du projet Rhapsody</span>
   <span class="hljs-attr">&quot;projectDir&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;C:/Chemin/Vers/MonProjetRhapsody&quot;</span><span class="hljs-punctuation">,</span>
@@ -760,7 +766,7 @@ Si le projet Rhapsody lit des fichiers externes (par exemple des <code>.wav</cod
 <p>Le dossier <code>rhapsody_API_build/dist/</code> contient désormais un simulateur autonome : un double-clic sur <code>simulateur.exe</code> ouvre directement l'interface Web personnalisée (sur <code>/custom/</code>).</p>
 <hr>
 <h2 id="7-à-propos-du-dossier-rhapsody_web_interface-facultatif">7. À propos du dossier <code>rhapsody_WEB_interface/</code> (facultatif)<a class="anchor" href="#7-à-propos-du-dossier-rhapsody_web_interface-facultatif" aria-label="Lien vers cette section">#</a></h2>
-<p>Le dossier <strong><code>rhapsody_WEB_interface/</code></strong> présent à la racine du dépôt joue un rôle bien précis :</p>
+<p>Le dossier <strong><a href="https://github.com/benoitdekeyn/rhapsody_webapp_builder/tree/main/rhapsody_WEB_interface" target="_blank" rel="noopener noreferrer"><code>rhapsody_WEB_interface/</code></a></strong> présent à la racine du dépôt joue un rôle bien précis :</p>
 <ul>
 <li><strong>Contenu</strong> : il s'agit du code source de <strong>l'interface personnelle d'exemple</strong> (le cockpit de voiture), construit avec des outils Web modernes (<strong>Vue 3 + Vite</strong><sup><a href="#g-vue" title="Glossaire : Vue 3 / Vite">[11]</a></sup>) qui regroupent tout le site en un seul fichier <code>dist/index.html</code> autonome. Il contient un dossier <code>src/core/</code> (connexion à l'API<sup><a href="#g-api" title="Glossaire : API">[1]</a></sup>), un fichier <code>api-map.jsonc</code> (correspondance entre les noms de l'interface et les attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup>/événements<sup><a href="#g-evenement" title="Glossaire : Événement">[4]</a></sup> Rhapsody) et les composants visuels de la voiture (<code>src/car/</code>).</li>
 <li><strong>Aucune obligation de s'y pencher</strong> : pour créer une simple page <code>index.html</code> (comme montré plus haut) ou un site avec d'autres outils, ce dossier peut être totalement ignoré en déposant les fichiers directement dans <code>rhapsody_API_build/custom_web_interface/</code>.</li>

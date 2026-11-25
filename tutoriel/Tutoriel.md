@@ -2,7 +2,12 @@
 
 Ce guide pratique décrit, étape par étape, comment transformer un **projet IBM Rhapsody** en un **exécutable Windows autonome** pilotable depuis un navigateur Web — sans jamais modifier le modèle Rhapsody d'origine.
 
-> **Pour comprendre le fonctionnement interne ou personnaliser finement l'outil**, consulter le document compagnon **`Description_Detaillee`** (fourni au format HTML et PDF dans ce même dossier).
+Tous les fichiers et outils mentionnés dans ce document proviennent du dépôt GitHub **[https://github.com/benoitdekeyn/rhapsody_webapp_builder](https://github.com/benoitdekeyn/rhapsody_webapp_builder)** :
+
+- **Présentation générale du dépôt** : [README.md](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/README.md)
+- **Récupérer le projet** : [Télécharger le ZIP](https://github.com/benoitdekeyn/rhapsody_webapp_builder/archive/refs/heads/main.zip) ou cloner via `git clone https://github.com/benoitdekeyn/rhapsody_webapp_builder.git`
+
+> **Pour comprendre le fonctionnement interne ou personnaliser finement l'outil**, consulter le document compagnon **[Description_detaillee.md](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/tutoriel/Description_detaillee.md)** (également disponible en HTML et PDF dans le dossier `tutoriel/` du dépôt).
 
 <!-- TOC -->
 
@@ -91,10 +96,11 @@ flowchart LR
 
 Pour découvrir le résultat final avant de commencer :
 
-1. Ouvrir le dossier `application/` à la racine du dépôt.
-2. Double-cliquer sur **`simulateur.exe`**.
-3. Le navigateur s'ouvre sur `http://127.0.0.1:8080/custom/` (exemple personnel de cockpit véhicule).
-4. Ouvrir également **`http://127.0.0.1:8080/api/`** : c'est la **page générique** générée automatiquement pour tout projet (elle affiche tous les attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup> et boutons d'événements<sup><a href="#g-evenement" title="Glossaire : Événement">[4]</a></sup> sans écrire une ligne de HTML<sup><a href="#g-html" title="Glossaire : HTML / CSS / JS">[5]</a></sup>).
+1. Récupérer le dépôt depuis GitHub ([télécharger le ZIP](https://github.com/benoitdekeyn/rhapsody_webapp_builder/archive/refs/heads/main.zip) et le décompresser, ou cloner [le dépôt](https://github.com/benoitdekeyn/rhapsody_webapp_builder)).
+2. Ouvrir le dossier `application/` à la racine du dépôt.
+3. Double-cliquer sur **`simulateur.exe`**.
+4. Le navigateur s'ouvre sur `http://127.0.0.1:8080/custom/` (exemple personnel de cockpit véhicule).
+5. Ouvrir également **`http://127.0.0.1:8080/api/`** : c'est la **page générique** générée automatiquement pour tout projet (elle affiche tous les attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup> et boutons d'événements<sup><a href="#g-evenement" title="Glossaire : Événement">[4]</a></sup> sans écrire une ligne de HTML<sup><a href="#g-html" title="Glossaire : HTML / CSS / JS">[5]</a></sup>).
 
 ---
 
@@ -123,7 +129,7 @@ Dans **IBM Rhapsody**, générer le code C++ du projet comme d'habitude (*Code �
 
 ### 5.2. Étape 2 — Indiquer le projet dans la configuration
 
-Ouvrir le fichier **`rhapsody_API_build/rhapsody-api.config.jsonc`** (avec le Bloc-notes ou VS Code) et adapter les champs ci-dessous pour pointer vers le projet cible :
+Ouvrir le fichier **[`rhapsody_API_build/rhapsody-api.config.jsonc`](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/rhapsody_API_build/rhapsody-api.config.jsonc)** (avec le Bloc-notes ou VS Code) et adapter les champs ci-dessous pour pointer vers le projet cible :
 
 <!-- code:rhapsody_API_build/rhapsody-api.config.jsonc -->
 ```jsonc
@@ -293,7 +299,7 @@ Le dossier `rhapsody_API_build/dist/` contient désormais un simulateur autonome
 
 ## 7. À propos du dossier `rhapsody_WEB_interface/` (facultatif)
 
-Le dossier **`rhapsody_WEB_interface/`** présent à la racine du dépôt joue un rôle bien précis :
+Le dossier **[`rhapsody_WEB_interface/`](https://github.com/benoitdekeyn/rhapsody_webapp_builder/tree/main/rhapsody_WEB_interface)** présent à la racine du dépôt joue un rôle bien précis :
 
 - **Contenu** : il s'agit du code source de **l'interface personnelle d'exemple** (le cockpit de voiture), construit avec des outils Web modernes (**Vue 3 + Vite**<sup><a href="#g-vue" title="Glossaire : Vue 3 / Vite">[11]</a></sup>) qui regroupent tout le site en un seul fichier `dist/index.html` autonome. Il contient un dossier `src/core/` (connexion à l'API<sup><a href="#g-api" title="Glossaire : API">[1]</a></sup>), un fichier `api-map.jsonc` (correspondance entre les noms de l'interface et les attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup>/événements<sup><a href="#g-evenement" title="Glossaire : Événement">[4]</a></sup> Rhapsody) et les composants visuels de la voiture (`src/car/`).
 - **Aucune obligation de s'y pencher** : pour créer une simple page `index.html` (comme montré plus haut) ou un site avec d'autres outils, ce dossier peut être totalement ignoré en déposant les fichiers directement dans `rhapsody_API_build/custom_web_interface/`.

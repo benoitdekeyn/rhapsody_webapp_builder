@@ -1,6 +1,6 @@
 # Description détaillée — Chaîne de construction et API Rhapsody
 
-Ce document complète le **`Tutoriel`** rapide. Il explique, avec un vocabulaire accessible, **comment fonctionne la chaîne d'outils**, **comment la personnaliser** pour votre projet IBM Rhapsody, **comment utiliser l'API en détail**, et **comment diagnostiquer les erreurs courantes**.
+Ce document complète le **[Tutoriel.md](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/tutoriel/Tutoriel.md)** rapide du dépôt **[benoitdekeyn/rhapsody_webapp_builder](https://github.com/benoitdekeyn/rhapsody_webapp_builder)** ([README.md](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/README.md)). Il explique, avec un vocabulaire accessible, **comment fonctionne la chaîne d'outils**, **comment la personnaliser** pour votre projet IBM Rhapsody, **comment utiliser l'API en détail**, et **comment diagnostiquer les erreurs courantes**.
 
 > **Rappel sur le contenu du dépôt :** le dossier `rhapsody_WEB_interface/` (cockpit véhicule) et les chemins pré-remplis dans les fichiers de configuration constituent **un exemple personnel concret**. Toute la mécanique décrite ci-dessous (`rhapsody_API_build/`) est totalement indépendante de cet exemple et s'applique à n'importe quel modèle Rhapsody C++.
 
