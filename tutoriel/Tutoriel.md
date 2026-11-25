@@ -200,6 +200,12 @@ Une fois `simulateur.exe` lancé, toute page Web peut communiquer avec lui à tr
 <!-- paysage : zoom = 100, direction = LR -->
 <!-- portrait : zoom = 85, direction = TB -->
 ```mermaid
+---
+config:
+  flowchart:
+    rankSpacing: 95
+    nodeSpacing: 50
+---
 flowchart LR
   UI["Page Web\n(HTML / JS)"]
 
@@ -209,10 +215,10 @@ flowchart LR
     MOD["Modèle Rhapsody\n(Attributs & Événements)"]
   end
 
-  UI -->|"1. Clic bouton\nEnvoyer un événement\nou modifier un attribut"| API
-  API -->|"2. Transmet l'action"| MOD
-  MOD -->|"3. Nouvelles valeurs"| API
-  API -->|"4. Mise à jour en direct"| UI
+  UI -->|"1. Action\n(événement / attribut)"| API
+  API -->|"2. Transmet\nl'action"| MOD
+  MOD -->|"3. Nouvelles\nvaleurs"| API
+  API -->|"4. Mise à jour\nen direct"| UI
 
   classDef web fill:#0d9488,stroke:#0f766e,color:#fff
   classDef api fill:#d97706,stroke:#b45309,color:#fff

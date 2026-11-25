@@ -637,7 +637,13 @@ Si le projet Rhapsody lit des fichiers externes (par exemple des <code>.wav</cod
 <h2 id="6-connecter-une-interface-web-personnalisée-à-lapi">6. Connecter une interface Web personnalisée à l'API<a class="anchor" href="#6-connecter-une-interface-web-personnalisée-à-lapi" aria-label="Lien vers cette section">#</a></h2>
 <p>Une fois <code>simulateur.exe</code> lancé, toute page Web peut communiquer avec lui à travers son <strong>API</strong><sup><a href="#g-api" title="Glossaire : API">[1]</a></sup> (une passerelle d'échange de données locale sur le PC).</p>
 <h3 id="61-parcours-simplifié-des-données">6.1. Parcours simplifié des données<a class="anchor" href="#61-parcours-simplifié-des-données" aria-label="Lien vers cette section">#</a></h3>
-<div class="mermaid-box" data-zoom-paysage="100" data-zoom-portrait="85"><pre class="mermaid" data-src-portrait="flowchart TD
+<div class="mermaid-box" data-zoom-paysage="100" data-zoom-portrait="85"><pre class="mermaid" data-src-portrait="---
+config:
+  flowchart:
+    rankSpacing: 95
+    nodeSpacing: 50
+---
+flowchart TD
   UI[&quot;Page Web\n(HTML / JS)&quot;]
 
   subgraph EXE[&quot;simulateur.exe (un seul exécutable Windows)&quot;]
@@ -646,10 +652,10 @@ Si le projet Rhapsody lit des fichiers externes (par exemple des <code>.wav</cod
     MOD[&quot;Modèle Rhapsody\n(Attributs &amp; Événements)&quot;]
   end
 
-  UI --&gt;|&quot;1. Clic bouton\nEnvoyer un événement\nou modifier un attribut&quot;| API
-  API --&gt;|&quot;2. Transmet l'action&quot;| MOD
-  MOD --&gt;|&quot;3. Nouvelles valeurs&quot;| API
-  API --&gt;|&quot;4. Mise à jour en direct&quot;| UI
+  UI --&gt;|&quot;1. Action\n(événement / attribut)&quot;| API
+  API --&gt;|&quot;2. Transmet\nl'action&quot;| MOD
+  MOD --&gt;|&quot;3. Nouvelles\nvaleurs&quot;| API
+  API --&gt;|&quot;4. Mise à jour\nen direct&quot;| UI
 
   classDef web fill:#0d9488,stroke:#0f766e,color:#fff
   classDef api fill:#d97706,stroke:#b45309,color:#fff
@@ -659,7 +665,13 @@ Si le projet Rhapsody lit des fichiers externes (par exemple des <code>.wav</cod
   class API api
   class MOD mod
   style EXE fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:6 4,color:#1e293b
-">flowchart LR
+">---
+config:
+  flowchart:
+    rankSpacing: 95
+    nodeSpacing: 50
+---
+flowchart LR
   UI[&quot;Page Web\n(HTML / JS)&quot;]
 
   subgraph EXE[&quot;simulateur.exe (un seul exécutable Windows)&quot;]
@@ -668,10 +680,10 @@ Si le projet Rhapsody lit des fichiers externes (par exemple des <code>.wav</cod
     MOD[&quot;Modèle Rhapsody\n(Attributs &amp; Événements)&quot;]
   end
 
-  UI --&gt;|&quot;1. Clic bouton\nEnvoyer un événement\nou modifier un attribut&quot;| API
-  API --&gt;|&quot;2. Transmet l'action&quot;| MOD
-  MOD --&gt;|&quot;3. Nouvelles valeurs&quot;| API
-  API --&gt;|&quot;4. Mise à jour en direct&quot;| UI
+  UI --&gt;|&quot;1. Action\n(événement / attribut)&quot;| API
+  API --&gt;|&quot;2. Transmet\nl'action&quot;| MOD
+  MOD --&gt;|&quot;3. Nouvelles\nvaleurs&quot;| API
+  API --&gt;|&quot;4. Mise à jour\nen direct&quot;| UI
 
   classDef web fill:#0d9488,stroke:#0f766e,color:#fff
   classDef api fill:#d97706,stroke:#b45309,color:#fff
