@@ -196,8 +196,12 @@ Une fois `simulateur.exe` lancé, toute page Web peut communiquer avec lui à tr
 ```mermaid
 flowchart LR
   UI["Page Web\n(HTML / JS)"]
-  API["API de simulateur.exe\n(REST + Temps réel)"]
-  MOD["Modèle Rhapsody\n(Attributs & Événements)"]
+
+  subgraph EXE["simulateur.exe (un seul exécutable Windows)"]
+    direction LR
+    API["API intégrée\n(REST + Temps réel)"]
+    MOD["Modèle Rhapsody\n(Attributs & Événements)"]
+  end
 
   UI -->|"1. Clic bouton\nEnvoyer un événement\nou modifier un attribut"| API
   API -->|"2. Transmet l'action"| MOD
@@ -211,6 +215,7 @@ flowchart LR
   class UI web
   class API api
   class MOD mod
+  style EXE fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:6 4,color:#1e293b
 ```
 
 ### 6.2. Créer une première page Web (en 2 minutes)

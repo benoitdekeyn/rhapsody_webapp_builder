@@ -633,8 +633,12 @@ Si le projet Rhapsody lit des fichiers externes (par exemple des <code>.wav</cod
 <h3 id="61-parcours-simplifié-des-données">6.1. Parcours simplifié des données<a class="anchor" href="#61-parcours-simplifié-des-données" aria-label="Lien vers cette section">#</a></h3>
 <div class="mermaid-box" data-zoom-paysage="100" data-zoom-portrait="85"><pre class="mermaid" data-src-portrait="flowchart TD
   UI[&quot;Page Web\n(HTML / JS)&quot;]
-  API[&quot;API de simulateur.exe\n(REST + Temps réel)&quot;]
-  MOD[&quot;Modèle Rhapsody\n(Attributs &amp; Événements)&quot;]
+
+  subgraph EXE[&quot;simulateur.exe (un seul exécutable Windows)&quot;]
+    direction LR
+    API[&quot;API intégrée\n(REST + Temps réel)&quot;]
+    MOD[&quot;Modèle Rhapsody\n(Attributs &amp; Événements)&quot;]
+  end
 
   UI --&gt;|&quot;1. Clic bouton\nEnvoyer un événement\nou modifier un attribut&quot;| API
   API --&gt;|&quot;2. Transmet l'action&quot;| MOD
@@ -648,10 +652,15 @@ Si le projet Rhapsody lit des fichiers externes (par exemple des <code>.wav</cod
   class UI web
   class API api
   class MOD mod
+  style EXE fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:6 4,color:#1e293b
 ">flowchart LR
   UI[&quot;Page Web\n(HTML / JS)&quot;]
-  API[&quot;API de simulateur.exe\n(REST + Temps réel)&quot;]
-  MOD[&quot;Modèle Rhapsody\n(Attributs &amp; Événements)&quot;]
+
+  subgraph EXE[&quot;simulateur.exe (un seul exécutable Windows)&quot;]
+    direction LR
+    API[&quot;API intégrée\n(REST + Temps réel)&quot;]
+    MOD[&quot;Modèle Rhapsody\n(Attributs &amp; Événements)&quot;]
+  end
 
   UI --&gt;|&quot;1. Clic bouton\nEnvoyer un événement\nou modifier un attribut&quot;| API
   API --&gt;|&quot;2. Transmet l'action&quot;| MOD
@@ -665,6 +674,7 @@ Si le projet Rhapsody lit des fichiers externes (par exemple des <code>.wav</cod
   class UI web
   class API api
   class MOD mod
+  style EXE fill:#f8fafc,stroke:#64748b,stroke-width:2px,stroke-dasharray:6 4,color:#1e293b
 </pre></div>
 <h3 id="62-créer-une-première-page-web-en-2-minutes">6.2. Créer une première page Web (en 2 minutes)<a class="anchor" href="#62-créer-une-première-page-web-en-2-minutes" aria-label="Lien vers cette section">#</a></h3>
 <p>L'outil fournit un fichier prêt à l'emploi, <strong><code>sim-client.js</code></strong>, qui prend en charge toute la communication avec l'exécutable.</p>
