@@ -1,13 +1,13 @@
-# Tutoriel — Ajouter une interface Web à un projet Rhapsody
+# Tutoriel - Ajouter une interface Web à un projet Rhapsody
 
-Ce guide pratique décrit, étape par étape, comment transformer un **projet IBM Rhapsody** en un **exécutable Windows autonome** pilotable depuis un navigateur Web — sans jamais modifier le modèle Rhapsody d'origine.
+Ce guide pratique décrit, étape par étape, comment transformer un **projet IBM Rhapsody** en un **exécutable Windows autonome** pilotable depuis un navigateur Web - sans jamais modifier le modèle Rhapsody d'origine.
 
 Tous les fichiers et outils mentionnés dans ce document proviennent du dépôt GitHub **[https://github.com/benoitdekeyn/rhapsody_webapp_builder](https://github.com/benoitdekeyn/rhapsody_webapp_builder)** :
 
 - **Présentation générale du dépôt** : [README.md](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/README.md)
 - **Récupérer le projet** : [Télécharger le ZIP](https://github.com/benoitdekeyn/rhapsody_webapp_builder/archive/refs/heads/main.zip) ou cloner via `git clone https://github.com/benoitdekeyn/rhapsody_webapp_builder.git`
 
-> **Pour comprendre le fonctionnement interne ou personnaliser finement l'outil**, consulter le document compagnon **[Description_detaillee.md](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/tutoriel/Description_detaillee.md)** (également disponible en HTML et PDF dans le dossier `tutoriel/` du dépôt).
+> **Pour comprendre le fonctionnement interne ou personnaliser finement l'outil**, consulter le document comlémentaire **[Description_detaillee.md](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/tutoriel/Description_detaillee.md)** (également disponible en HTML et PDF dans le dossier `tutoriel/` du dépôt).
 
 <!-- TOC -->
 
@@ -18,10 +18,10 @@ Tous les fichiers et outils mentionnés dans ce document proviennent du dépôt 
 <span class="fo">&ensp;&ensp;</span><b>• <a href="#3-essayer-lexemple-tout-de-suite-sans-rien-installer">3. Essayer l'exemple tout de suite (sans rien installer)</a></b><br>
 <span class="fo">&ensp;&ensp;</span><b>• <a href="#4-pr%C3%A9requis--installer-nodejs-une-seule-fois">4. Prérequis : installer Node.js (une seule fois)</a></b><br>
 <span class="fo">&ensp;&ensp;</span><b>• <a href="#5-construire-lex%C3%A9cutable-pour-un-projet-rhapsody">5. Construire l'exécutable pour un projet Rhapsody</a></b><br>
-<span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#51-%C3%A9tape-1--g%C3%A9n%C3%A9rer-le-code-dans-rhapsody">5.1. Étape 1 — Générer le code dans Rhapsody</a><br>
-<span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#52-%C3%A9tape-2--indiquer-le-projet-dans-la-configuration">5.2. Étape 2 — Indiquer le projet dans la configuration</a><br>
-<span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#53-%C3%A9tape-3--lancer-la-construction">5.3. Étape 3 — Lancer la construction</a><br>
-<span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#54-%C3%A9tape-4--lancer-le-simulateur-et-tester">5.4. Étape 4 — Lancer le simulateur et tester</a><br>
+<span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#51-%C3%A9tape-1--g%C3%A9n%C3%A9rer-le-code-dans-rhapsody">5.1. Étape 1 - Générer le code dans Rhapsody</a><br>
+<span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#52-%C3%A9tape-2--indiquer-le-projet-dans-la-configuration">5.2. Étape 2 - Indiquer le projet dans la configuration</a><br>
+<span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#53-%C3%A9tape-3--lancer-la-construction">5.3. Étape 3 - Lancer la construction</a><br>
+<span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#54-%C3%A9tape-4--lancer-le-simulateur-et-tester">5.4. Étape 4 - Lancer le simulateur et tester</a><br>
 <span class="fo">&ensp;&ensp;</span><b>• <a href="#6-connecter-une-interface-web-personnalis%C3%A9e-%C3%A0-lapi">6. Connecter une interface Web personnalisée à l'API</a></b><br>
 <span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#61-parcours-simplifi%C3%A9-des-donn%C3%A9es">6.1. Parcours simplifié des données</a><br>
 <span class="fo">&ensp;&ensp;</span>&ensp;&ensp;&ensp;&ensp;◦ <a href="#62-cr%C3%A9er-une-premi%C3%A8re-page-web-en-2-minutes">6.2. Créer une première page Web (en 2 minutes)</a><br>
@@ -102,6 +102,14 @@ Pour découvrir le résultat final avant de commencer :
 4. Le navigateur s'ouvre sur `http://127.0.0.1:8080/custom/` (exemple personnel de cockpit véhicule).
 5. Ouvrir également **`http://127.0.0.1:8080/api/`** : c'est la **page générique** générée automatiquement pour tout projet (elle affiche tous les attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup> et boutons d'événements<sup><a href="#g-evenement" title="Glossaire : Événement">[4]</a></sup> sans écrire une ligne de HTML<sup><a href="#g-html" title="Glossaire : HTML / CSS / JS">[5]</a></sup>).
 
+Voici un aperçu de l'interface graphique Web d'exemple pilotant le simulateur C++ Rhapsody (`http://127.0.0.1:8080/custom/`) :
+
+![Capture d'écran de l'interface Web](media/interface_web_demo.png)
+
+Il est également possible d'y réinitialiser la simulation ou de régler des attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup> (constants ou variables) directement depuis la fenêtre de paramètres :
+
+![Capture d'écran de la fenêtre de paramètres](media/interface_web_parametres.png)
+
 ---
 
 ## 4. Prérequis : installer Node.js (une seule fois)
@@ -123,11 +131,11 @@ L'affichage d'un numéro de version confirme que l'installation est prête. *(Si
 
 ## 5. Construire l'exécutable pour un projet Rhapsody
 
-### 5.1. Étape 1 — Générer le code dans Rhapsody
+### 5.1. Étape 1 - Générer le code dans Rhapsody
 
 Dans **IBM Rhapsody**, générer le code C++ du projet comme d'habitude (*Code → Generate / Make / Run*). Les fichiers `.h`, `.cpp` et `.mak` se trouvent dans le dossier `CodesGeneres/ModeAnimation` du projet.
 
-### 5.2. Étape 2 — Indiquer le projet dans la configuration
+### 5.2. Étape 2 - Indiquer le projet dans la configuration
 
 Ouvrir le fichier **[`rhapsody_API_build/rhapsody-api.config.jsonc`](https://github.com/benoitdekeyn/rhapsody_webapp_builder/blob/main/rhapsody_API_build/rhapsody-api.config.jsonc)** (avec le Bloc-notes ou VS Code) et adapter les champs ci-dessous pour pointer vers le projet cible :
 
@@ -160,13 +168,13 @@ Ouvrir le fichier **[`rhapsody_API_build/rhapsody-api.config.jsonc`](https://git
 }
 ```
 
-> **Important — Faire fonctionner la lecture de fichiers (sons, images, données) dans l'exécutable :**
+> **Important - Faire fonctionner la lecture de fichiers (sons, images, données) dans l'exécutable :**
 > Si le projet Rhapsody lit des fichiers externes (par exemple des `.wav` dans un dossier `sons/`), trois réglages garantissent que tout fonctionne même après déplacement de `simulateur.exe` :
 > 1. **`assets`** copie le dossier (ex. `sons`) juste à côté de `simulateur.exe`.
 > 2. **`run.useExeDir: true`** force l'exécutable à chercher les chemins relatifs dans son propre dossier.
 > 3. **`attributeOverrides`** remplace la valeur initiale de l'attribut<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup> de chemin (ex. `chemin_sons` → `"sons\\"`) **uniquement dans l'exécutable compilé**, sans modifier le projet Rhapsody. Adapter `"class"` et `"attribute"` au nom de la classe et de l'attribut<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup> concernés (ou mettre `[]` si le projet n'utilise aucun fichier externe).
 
-### 5.3. Étape 3 — Lancer la construction
+### 5.3. Étape 3 - Lancer la construction
 
 1. Ouvrir un terminal **dans le dossier `rhapsody_API_build/`**.
 2. Lancer la commande de construction :
@@ -177,7 +185,7 @@ npm run build
 
 L'outil analyse le code Rhapsody, compile l'exécutable et vérifie automatiquement son démarrage. En fin d'exécution, le message **`BUILD SUCCEEDED`** doit apparaître.
 
-### 5.4. Étape 4 — Lancer le simulateur et tester
+### 5.4. Étape 4 - Lancer le simulateur et tester
 
 Dans le même terminal, exécuter :
 
@@ -309,10 +317,10 @@ Le dossier **[`rhapsody_WEB_interface/`](https://github.com/benoitdekeyn/rhapsod
 
 - **Contenu** : il s'agit du code source de **l'interface personnelle d'exemple** (le cockpit de voiture), construit avec des outils Web modernes (**Vue 3 + Vite**<sup><a href="#g-vue" title="Glossaire : Vue 3 / Vite">[11]</a></sup>) qui regroupent tout le site en un seul fichier `dist/index.html` autonome. Il contient un dossier `src/core/` (connexion à l'API<sup><a href="#g-api" title="Glossaire : API">[1]</a></sup>), un fichier `api-map.jsonc` (correspondance entre les noms de l'interface et les attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup>/événements<sup><a href="#g-evenement" title="Glossaire : Événement">[4]</a></sup> Rhapsody) et les composants visuels de la voiture (`src/car/`).
 - **Aucune obligation de s'y pencher** : pour créer une simple page `index.html` (comme montré plus haut) ou un site avec d'autres outils, ce dossier peut être totalement ignoré en déposant les fichiers directement dans `rhapsody_API_build/custom_web_interface/`.
-- **Réutilisation possible comme base** : cet environnement Web est déjà configuré pour développer confortablement. L'utilisateur peut s'en inspirer — ou remplacer son contenu par sa propre interface — afin de profiter de la chaîne complète depuis la racine du dépôt :
+- **Réutilisation possible comme base** : cet environnement Web est déjà configuré pour développer confortablement. L'utilisateur peut s'en inspirer - ou remplacer son contenu par sa propre interface - afin de profiter de la chaîne complète depuis la racine du dépôt :
   - **`npm run dev`** : ouvre l'interface en mode développement ; à chaque sauvegarde, la page se recharge automatiquement tout en restant connectée à `simulateur.exe`.
   - **`npm run update:web`** : recompile l'interface et remplace celle de `application/` **sans même fermer `simulateur.exe`** (un simple rafraîchissement du navigateur suffit).
-  - **`npm run build`** : enchaîne tout automatiquement en une seule commande — compile `rhapsody_WEB_interface/`, copie le résultat dans `rhapsody_API_build/custom_web_interface/`, compile `simulateur.exe` et place l'application complète dans `application/`.
+  - **`npm run build`** : enchaîne tout automatiquement en une seule commande - compile `rhapsody_WEB_interface/`, copie le résultat dans `rhapsody_API_build/custom_web_interface/`, compile `simulateur.exe` et place l'application complète dans `application/`.
 
 > **Note** : lors de la toute première exécution de `npm run dev` ou `npm run build` à la racine avec `rhapsody_WEB_interface/`, les dépendances Web de Vue/Vite<sup><a href="#g-vue" title="Glossaire : Vue 3 / Vite">[11]</a></sup> s'installent automatiquement (une connexion Internet est alors nécessaire uniquement cette fois-là).
 
