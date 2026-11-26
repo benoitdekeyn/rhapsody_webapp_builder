@@ -94,13 +94,12 @@ flowchart LR
 
 ## 3. Essayer l'exemple tout de suite (sans rien installer)
 
-Pour découvrir le résultat final avant de commencer :
+Pour découvrir le résultat final immédiatement, sans même avoir besoin de récupérer tout le dépôt :
 
-1. Récupérer le dépôt depuis GitHub ([télécharger le ZIP](https://github.com/benoitdekeyn/rhapsody_webapp_builder/archive/refs/heads/main.zip) et le décompresser, ou cloner [le dépôt](https://github.com/benoitdekeyn/rhapsody_webapp_builder)).
-2. Ouvrir le dossier `application/` à la racine du dépôt.
-3. Double-cliquer sur **`simulateur.exe`**.
-4. Le navigateur s'ouvre sur `http://127.0.0.1:8080/custom/` (exemple personnel de cockpit véhicule).
-5. Ouvrir également **`http://127.0.0.1:8080/api/`** : c'est la **page générique** générée automatiquement pour tout projet (elle affiche tous les attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup> et boutons d'événements<sup><a href="#g-evenement" title="Glossaire : Événement">[4]</a></sup> sans écrire une ligne de HTML<sup><a href="#g-html" title="Glossaire : HTML / CSS / JS">[5]</a></sup>).
+1. Télécharger et décompresser l'archive prête à l'emploi **[`zip-demo-webapp-rhapsody.zip`](https://github.com/benoitdekeyn/rhapsody_webapp_builder/raw/main/application/zip-demo-webapp-rhapsody.zip)** (elle contient déjà `simulateur.exe`, les interfaces Web et le dossier `sons/`). *(Si le dépôt complet est déjà téléchargé, ouvrir directement le dossier `application/`.)*
+2. Double-cliquer sur **`simulateur.exe`**.
+3. Le navigateur s'ouvre sur `http://127.0.0.1:8080/custom/` (exemple personnel de cockpit véhicule).
+4. Ouvrir également **`http://127.0.0.1:8080/api/`** : c'est la **page générique** générée automatiquement pour tout projet (elle affiche tous les attributs<sup><a href="#g-attribut" title="Glossaire : Attribut">[3]</a></sup> et boutons d'événements<sup><a href="#g-evenement" title="Glossaire : Événement">[4]</a></sup> sans écrire une ligne de HTML<sup><a href="#g-html" title="Glossaire : HTML / CSS / JS">[5]</a></sup>).
 
 Voici un aperçu de l'interface graphique Web d'exemple pilotant le simulateur C++ Rhapsody (`http://127.0.0.1:8080/custom/`) :
 

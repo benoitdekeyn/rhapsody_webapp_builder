@@ -32,7 +32,7 @@ Deux documents complémentaires sont disponibles dans le dossier `tutoriel/` (en
 | --- | --- |
 | `rhapsody_API_build/` | **Cœur réutilisable** : analyseur de code Rhapsody, générateur d'API C++ (REST + WebSocket), compilateur MSVC et page générique `/api/`. |
 | `rhapsody_WEB_interface/` | **Exemple personnel** d'interface Web (cockpit véhicule en Vue 3 + Vite, compilé en un seul `index.html`). |
-| `application/` | **Livrable prêt à lancer** : contient `simulateur.exe` (démo véhicule), les interfaces Web embarquées et les ressources (`sons/`). Double-cliquez sur `simulateur.exe` pour tester directement. |
+| `application/` | **Livrable prêt à lancer** : contient `simulateur.exe` (démo véhicule), les interfaces Web embarquées, les ressources (`sons/`), ainsi que l'archive autonome [`zip-demo-webapp-rhapsody.zip`](application/zip-demo-webapp-rhapsody.zip) pour tester directement. |
 | `tutoriel/` | Documentation complète (`Tutoriel` et `Description_detaillee` en Markdown, HTML et PDF). |
 | `rhapsody-webapp.config.jsonc` | Configuration commune commentée reliant le projet Rhapsody, l'API et l'interface Web. |
 | `scripts/cli.js` | Orchestrateur racine (sans dépendance) piloté via `npm run ...`. |
